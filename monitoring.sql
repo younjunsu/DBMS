@@ -22,13 +22,16 @@ FROM
 			V$SESSION
 		WHERE
 			status='RUNNING'
-		) b,
-		(
-			SELECT
-					COUNT(*) recover
-			FROM
-				V$SESSION
-			WHERE
-				status = 'SESS_RECOVERING') c;
+	) b,
+	(
+		SELECT
+				COUNT(*) recover
+		FROM
+			V$SESSION
+		WHERE
+			status = 'SESS_RECOVERING'
+	) c;
+
 			
+	
 	
