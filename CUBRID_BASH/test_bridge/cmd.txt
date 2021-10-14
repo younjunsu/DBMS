@@ -1,0 +1,13 @@
+# broker status 옵션에 따른 bridge.config 필터링
+cat bridge.config |grep -A14 "BROKER STATUS"
+
+# 사용할 항목만 필터링
+cat bridge.config |grep -A14 "BROKER STATUS" |grep -v "#"
+
+# broker status -f -b 옵션에 따른 bridge.config 필터링
+cat bridge.config |grep -A5 "BROKER CAS"
+
+# 사용할 항목만 필터링 
+cat bridge.config |grep -A5 "BROKER CAS" |grep -v "#"
+
+

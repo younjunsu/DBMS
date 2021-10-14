@@ -1,0 +1,131 @@
+import java.sql.*;
+
+public class junsuTrriger{
+    //INSERT SYNC
+    public static String CUBRIDtrrigerINSERT(String x, String y, String xy) throws SQLException{
+        try{            
+            Class.forName("cubrid.jdbc.driver.CUBRIDDriver");
+            Connection conn = DriverManager.getConnection("jdbc:default:connection:");            
+            String sql="INSERT INTO tb_tree(x,y,xy)" + "VALUES (?, ?, ?)";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            pstmt.setString(1, x);
+            pstmt.setString(2, y);
+            pstmt.setString(3, xy);
+            pstmt.executeUpdate();
+
+            pstmt.close();
+            conn.commit();
+            conn.close();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        return "INSERT";
+    }
+
+    //DELETE SYNC
+    public static String CUBRIDtrrigerDELETE(String x, String y, String xy) throws SQLException{
+    try{            
+        Class.forName("cubrid.jdbc.driver.CUBRIDDriver");
+        Connection conn = DriverManager.getConnection("jdbc:default:connection:");            
+        String sql="DELETE FROM tb_tree WHERE x=? AND y=? AND xy=?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+
+        pstmt.setString(1, x);
+        pstmt.setString(2, y);
+        pstmt.setString(3, xy);
+        pstmt.executeUpdate();
+
+        pstmt.close();
+        conn.commit();
+        conn.close();
+    } catch (Exception e) {
+        System.err.println(e.getMessage());
+    }
+    return "DELETE";
+    }
+
+    //UPDATE SYNC
+    public static String CUBRIDtrrigerUPDATE(String x, String y, String xy,String xx, String yy, String xxyy) throws SQLException{
+        try{            
+            Class.forName("cubrid.jdbc.driver.CUBRIDDriver");
+            Connection conn = DriverManager.getConnection("jdbc:default:connection:");            
+            String sql="UPDATE tb_tree SET x=?, y=?, xy=? WHERE x=? AND y=? AND xy=?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            pstmt.setString(1, x);
+            pstmt.setString(2, y);
+            pstmt.setString(3, xy);
+            pstmt.setString(4, xx);
+            pstmt.setString(5, yy);
+            pstmt.setString(6, xxyy);
+            pstmt.executeUpdate();
+
+            pstmt.close();
+            conn.commit();
+            conn.close();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        return "UPDATE";
+    }
+}
+
+
+CREATE PROCEDURE junsuINSERT(x varchar, y varchar, xy varchar) AS LANGUAGE JAVA
+NAME 'junsuTrriger.CUBRIDtrrigerINSERT(java.lang.String,java.lang.String,java.lang.String)';
+
+
+CREATE PROCEDURE junsuDELETE(x varchar, y varchar, xy varchar) AS LANGUAGE JAVA
+NAME 'junsuTrriger.CUBRIDtrrigerDELETE(java.lang.String,java.lang.String,java.lang.String)';
+
+
+CREATE PROCEDURE junsuUPDATE(x varchar, y varchar, xy varchar,xx varchar, yy varchar, xxyy varcha) AS LANGUAGE JAVA
+NAME 'junsuTrriger.CUBRIDtrrigerUPDATE(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)';
+
+
+DROP PROCEDURE junsuINSERT;
+DROP PROCEDURE junsuDELETE;
+DROP PROCEDURE junsuUPDATE;
+
+CREATE TRIGGER junsuINSERT_trriger
+BEFORE INSERT ON tb_m
+EXECUTE
+call [junsuINSERT]([new].[x], [new].[y], [new].[xy]);
+
+
+CREATE TRIGGER junsuDELETE_trriger
+BEFORE DELETE ON tb_m
+EXECUTE
+call [junsuDELETE]([obj].[x], [obj].[y], [obj].[xy]);
+
+
+CREATE TRIGGER  junsuUPDATE_trriger
+BEFORE UPDATE ON tb_m
+EXECUTE
+call [junsuUPDATE]([new].[x],[new].[y],[new].[xy],[obj].[x],[obj].[y],[obj].[xy]);
+
+
+
+DROP TRIGGER junsuinsert_trriger;
+DROP TRIGGER junsudelete_trriger;
+DROP TRIGGER junsuupdate_trriger;
+
+
+
+
+
+
+
+CREATE TRIGGER junsuDELETE_trriger
+BEFORE DELETE ON tb_m
+IF obj.x < 0 AND obj.y < 0 AND obj.xy < 0 
+EXECUTE REJECT
+call [junsuDELETE]([obj].[x], [obj].[y], [obj].[xy]);
+
+
+CREATE TRIGGER  junsuUPDATE_trriger
+BEFORE UPDATE ON tb_m
+IF new.x < 0 AND new.y < 0 AND new.xy < 0 AND obj.x < 0  AND obj.y < 0 AND obj.xy < 0
+EXECUTE REJECT
+call [junsuUPDATE]([new].[x],[new].[y],[new].[xy],[obj].[x],[obj].[y],[obj].[xy]);

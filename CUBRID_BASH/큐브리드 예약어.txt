@@ -1,0 +1,38 @@
+revers_word_arr=("ABSOLUTE"  "ACTION"  "ADD"  "ADD_MONTHS"  "AFTER"  "ALL"  "ALLOCATE"  "ALTER" "AND"  "ANY"  "ARE"  "AS"  "ASC"  "ASSERTION"  "AT"  "ATTACH"  "ATTRIBUTE"  "AVG"  "BEFORE"  "BETWEEN"  "BIGINT" \
+"BIT"  "BIT_LENGTH"  "BLOB"  "BOOLEAN"  "BOTH"  "BREADTH"  "BY"  "CALL"  "CASCADE"  "CASCADED"  "CASE"  "CAST"  "CATALOG"  "CHANGE"  "CHAR"  "CHARACTER"  "CHECK"  "CLASS"  "CLASSES" \
+"CLOB"  "CLOSE"  "COALESCE"  "COLLATE"  "COLLATION"  "COLUMN"  "COMMIT"  "CONNECT"  "CONNECT_BY_ISCYCLE"  "CONNECT_BY_ISLEAF"  "CONNECT_BY_ROOT"  "CONNECTION"  "CONSTRAINT"  "CONSTRAINTS"  "CONTINUE" \
+"CONVERT"  "CORRESPONDING"  "COUNT"  "CREATE"  "CROSS"  "CURRENT"  "CURRENT_DATE"  "CURRENT_DATETIME"  "CURRENT_TIME"  "CURRENT_TIMESTAMP"  "CURRENT_USER"  "CURSOR"  "CYCLE"  "DATA"  "DATA_TYPE"  "DATABASE" \
+"DATE"  "DATETIME"  "DAY"  "DAY_HOUR"  "DAY_MILLISECOND"  "DAY_MINUTE"  "DAY_SECOND"  "DEALLOCATE"  "DEC"  "DECIMAL"  "DECLARE"  "DEFAULT"  "DEFERRABLE"  "DEFERRED"  "DELETE"  "DEPTH"  "DESC"  "DESCRIBE" \
+"DESCRIPTOR"  "DIAGNOSTICS"  "DIFFERENCE"  "DISCONNECT"  "DISTINCT"  "DISTINCTROW"  "DIV"  "DO"  "DOMAIN"  "DOUBLE"  "DUPLICATE"  "DROP"  "EACH"  "ELSE"  "ELSEIF"  "END"  "EQUALS"  "ESCAPE"  "EVALUATE"  "EXCEPT"  "EXCEPTION" \
+"EXEC"  "EXECUTE"  "EXISTS"  "EXTERNAL"  "EXTRACT"  "FALSE"  "FETCH"  "FILE"  "FIRST"  "FLOAT"  "FOR"  "FOREIGN"  "FOUND"  "FROM"  "FULL"  "FUNCTION"  "GENERAL"  "GET"  "GLOBAL"  "GO"  "GOTO"  "GRANT"  "GROUP" \
+"HAVING"  "HOUR"  "HOUR_MILLISECOND"  "HOUR_MINUTE"  "HOUR_SECOND"  "IDENTITY"  "IF"  "IGNORE"  "IMMEDIATE"  "IN"  "INDEX"  "INDICATOR"  "INHERIT"  "INITIALLY"  "INNER"  "INOUT"  "INPUT"  "INSERT"  "INT"  "INTEGER" \
+"INTERSECT"  "INTERSECTION"  "INTERVAL"  "INTO"  "IS"  "ISOLATION"  "JOIN"  "KEY"  "LANGUAGE"  "LAST"  "LEADING"  "LEAVE"  "LEFT"  "LESS"  "LEVEL"  "LIKE"  "LIMIT"  "LIST"  "LOCAL"  "LOCAL_TRANSACTION_ID" \
+"LOCALTIME"  "LOCALTIMESTAMP"  "LOOP"  "LOWER"  "MATCH"  "MAX"  "METHOD"  "MILLISECOND"  "MIN"  "MINUTE"  "MINUTE_MILLISECOND"  "MINUTE_SECOND"  "MOD"  "MODIFY"  "MODULE"  "MONTH"  "MULTISET"  "MULTISET_OF" \
+"NA"  "NAMES"  "NATIONAL"  "NATURAL"  "NCHAR"  "NEXT"  "NO"  "NONE"  "NOT"  "NULL"  "NULLIF"  "NUMERIC"  "OBJECT"  "OCTET_LENGTH"  "OF"  "OFF"  "ON"  "ONLY"  "OPEN"  "OPTIMIZATION"  "OPTION"  "OR"  "ORDER"  "OUT"  "OUTER"  "OUTPUT"  "OVERLAPS" \
+"PARAMETERS"  "PARTIAL"  "POSITION"  "PRECISION"  "PREPARE"  "PRESERVE"  "PRIMARY"  "PRIOR"  "PRIVILEGES"  "PROCEDURE"  "QUERY"  "READ"  "REAL"  "RECURSIVE"  "REF"  "REFERENCES"  "REFERENCING"  "RELATIVE"  "RENAME"  "REPLACE" \
+"RESIGNAL"  "RESTRICT"  "RETURN"  "RETURNS"  "REVOKE"  "RIGHT"  "ROLE"  "ROLLBACK"  "ROLLUP"  "ROUTINE"  "ROW"  "ROWNUM"  "ROWS"  "SAVEPOINT"  "SCHEMA"  "SCOPE"  "SCROLL"  "SEARCH"  "SECOND"  "SECOND_MILLISECOND"  "SECTION"  "SELECT" \
+"SENSITIVE"  "SEQUENCE"  "SEQUENCE_OF"  "SERIALIZABLE"  "SESSION"  "SESSION_USER"  "SET"  "SET_OF"  "SETEQ"  "SHARED"  "SIBLINGS"  "SIGNAL"  "SIMILAR"  "SIZE"  "SMALLINT"  "SOME"  "SQL"  "SQLCODE" \
+"SQLERROR"  "SQLEXCEPTION"  "SQLSTATE"  "SQLWARNING"  "STATISTICS"  "STRING"  "SUBCLASS"  "SUBSET"  "SUBSETEQ"  "SUBSTRING"  "SUM"  "SUPERCLASS"  "SUPERSET"  "SUPERSETEQ"  "SYS_CONNECT_BY_PATH" \
+"SYS_DATE"  "SYS_DATETIME"  "SYS_TIME"  "SYS_TIMESTAMP"  "SYSDATE"  "SYSDATETIME"  "SYSTEM_USER"  "SYSTIME"  "TABLE"  "TEMPORARY"  "THEN"  "TIME"  "TIMESTAMP"  "TIMEZONE_HOUR"  "TIMEZONE_MINUTE"  "TO"  "TRAILING" \
+"TRANSACTION"  "TRANSLATE"  "TRANSLATION"  "TRIGGER"  "TRIM"  "TRUE"  "TRUNCATE"  "UNDER"  "UNION"  "UNIQUE"  "UNKNOWN"  "UPDATE"  "UPPER"  "USAGE"  "USE"  "USER"  "USING"  "UTIME"  "VALUE"  "VALUES"  "VARCHAR" \
+"VARIABLE"  "VARYING"  "VCLASS"  "VIEW"  "WHEN"  "WHENEVER"  "WHERE"  "WHILE"  "WITH"  "WITHOUT"  "WORK"  "WRITE" "XOR"  "YEAR"  "YEAR_MONTH"  "ZONE")
+
+
+revers_word_arr=("absolute"  "action"  "add"  "add_months"  "after"  "all"  "allocate"  "alter" "and"  "any"  "are"  "as"  "asc"  "assertion"  "at"  "attach"  "attribute"  "avg"  "before"  "between"  "bigint" \
+"bit"  "bit_length"  "blob"  "boolean"  "both"  "breadth"  "by"  "call"  "cascade"  "cascaded"  "case"  "cast"  "catalog"  "change"  "char"  "character"  "check"  "class"  "classes" \
+"clob"  "close"  "coalesce"  "collate"  "collation"  "column"  "commit"  "connect"  "connect_by_iscycle"  "connect_by_isleaf"  "connect_by_root"  "connection"  "constraint"  "constraints"  "continue" \
+"convert"  "corresponding"  "count"  "create"  "cross"  "current"  "current_date"  "current_datetime"  "current_time"  "current_timestamp"  "current_user"  "cursor"  "cycle"  "data"  "data_type"  "database" \
+"date"  "datetime"  "day"  "day_hour"  "day_millisecond"  "day_minute"  "day_second"  "deallocate"  "dec"  "decimal"  "declare"  "default"  "deferrable"  "deferred"  "delete"  "depth"  "desc"  "describe" \
+"descriptor"  "diagnostics"  "difference"  "disconnect"  "distinct"  "distinctrow"  "div"  "do"  "domain"  "double"  "duplicate"  "drop"  "each"  "else"  "elseif"  "end"  "equals"  "escape"  "evaluate"  "except"  "exception" \
+"exec"  "execute"  "exists"  "external"  "extract"  "false"  "fetch"  "file"  "first"  "float"  "for"  "foreign"  "found"  "from"  "full"  "function"  "general"  "get"  "global"  "go"  "goto"  "grant"  "group" \
+"having"  "hour"  "hour_millisecond"  "hour_minute"  "hour_second"  "identity"  "if"  "ignore"  "immediate"  "in"  "index"  "indicator"  "inherit"  "initially"  "inner"  "inout"  "input"  "insert"  "int"  "integer" \
+"intersect"  "intersection"  "interval"  "into"  "is"  "isolation"  "join"  "key"  "language"  "last"  "leading"  "leave"  "left"  "less"  "level"  "like"  "limit"  "list"  "local"  "local_transaction_id" \
+"localtime"  "localtimestamp"  "loop"  "lower"  "match"  "max"  "method"  "millisecond"  "min"  "minute"  "minute_millisecond"  "minute_second"  "mod"  "modify"  "module"  "month"  "multiset"  "multiset_of" \
+"na"  "names"  "national"  "natural"  "nchar"  "next"  "no"  "none"  "not"  "null"  "nullif"  "numeric"  "object"  "octet_length"  "of"  "off"  "on"  "only"  "open"  "optimization"  "option"  "or"  "order"  "out"  "outer"  "output"  "overlaps" \
+"parameters"  "partial"  "position"  "precision"  "prepare"  "preserve"  "primary"  "prior"  "privileges"  "procedure"  "query"  "read"  "real"  "recursive"  "ref"  "references"  "referencing"  "relative"  "rename"  "replace" \
+"resignal"  "restrict"  "return"  "returns"  "revoke"  "right"  "role"  "rollback"  "rollup"  "routine"  "row"  "rownum"  "rows"  "savepoint"  "schema"  "scope"  "scroll"  "search"  "second"  "second_millisecond"  "section"  "select" \
+"sensitive"  "sequence"  "sequence_of"  "serializable"  "session"  "session_user"  "set"  "set_of"  "seteq"  "shared"  "siblings"  "signal"  "similar"  "size"  "smallint"  "some"  "sql"  "sqlcode" \
+"sqlerror"  "sqlexception"  "sqlstate"  "sqlwarning"  "statistics"  "string"  "subclass"  "subset"  "subseteq"  "substring"  "sum"  "superclass"  "superset"  "superseteq"  "sys_connect_by_path" \
+"sys_date"  "sys_datetime"  "sys_time"  "sys_timestamp"  "sysdate"  "sysdatetime"  "system_user"  "systime"  "table"  "temporary"  "then"  "time"  "timestamp"  "timezone_hour"  "timezone_minute"  "to"  "trailing" \
+"transaction"  "translate"  "translation"  "trigger"  "trim"  "true"  "truncate"  "under"  "union"  "unique"  "unknown"  "update"  "upper"  "usage"  "use"  "user"  "using"  "utime"  "value"  "values"  "varchar" \
+"variable"  "varying"  "vclass"  "view"  "when"  "whenever"  "where"  "while"  "with"  "without"  "work"  "write" "xor"  "year"  "year_month"  "zone")
