@@ -1,0 +1,3 @@
+tbboot -version
+
+exit

@@ -1,0 +1,84 @@
+OS별 서버정보 확인방법
+
+1. HP-UX 시스템 사양보기
+1) SAM 실행
+  Performance Monitors 선택
+  System Properties 선택
+  Tap키를 이용해 필요한 데이터 확인
+
+2) command prompt에서 print_manifets or machinfo 실행
+  print_manifets (RISC 칩셋)
+  machinfo (Intel Itanium 칩셋)
+
+ETC)
+  echo "runningprocs/D" | adb -k /stand/vmunix /dev/mem (CPU 개수 확인)
+    -> runningprocs 확인
+  ioscan -fknC processor | grep processor | wc -l  : CPU 개수
+
+
+2. AIX 시스템 사양보기
+1) command prompt에서 prtconf 입력
+  System Model
+  Processor Type 
+  Processor Implementation Mode
+  Number Of Processors
+
+2) command prompt에서 lsdev -C |grep proc 실행 (core 갯수 확인)
+   command prompt에서 smtctl 실행 (SMT 설정 확인)
+     -> SMT는 코어를 논리적으로 나눠 시켜서 core가 많아보이게함
+
+ETC) 
+  lsdev -Cc processor : 프로세서 보기 (물리적인 개수)
+  bindprocessor -q : 프로세서 보기 (논리적인 개수, SMT 기능 구현 시 2배로 보임)
+
+
+3. Solaris, SunOS 시스템 정보보기
+1) root command prompt 에서 prtdiag -v 실행
+  실행이 않되면 uname -a 로 기종 확인
+  SunOS mail 5.10 Generic_118822-25 sun4u sparc SUNW,Sun-Fire-V250 
+   -> 이렇게 나오면 sun4u 이게 플랫폼 기종.
+  command prompt 에서 /usr/platform/[기종]/sbin/prtdiag -v 실행
+   sun4u 같은경우에 /usr/platform/sun4u/sbin/prtdiag -v 실행
+   
+2) root command prompt 에서 psrinfo 실행
+  psrinfo -p : CPU 개수
+  psrinfo | wc -l : CPU 개수
+  psrinfo -p : cpu 장수
+  psrinfo -pv : 간략한 정보
+  psrinfo -v : 자세한 정보
+
+3) kstat 으로 확인
+  kstat -m cpu_info | grep -w core_id | sort -u | wc -l| awk '{print $1}' : Total Core 개수
+  kstat -m cpu_info | grep -w core_id | wc -l : Total Thread 개수
+
+ETC)
+  iostat -nE : 디스크별 제조사/모델명
+
+
+4. Linux 시스템 정보보기
+1) root command prompt 에서 dmidecode -t [키워드]
+  bios : BIOS정보
+  system : System 정보
+  baseboard : Mainboard 정보
+  chassis : 구조 정보
+  processor : 프로세서 정보
+  memory : 메모리 정보
+  cache : 캐시 정보
+  connector : 포트 정보
+  slot : 슬롯 정보
+
+2) command prompt 에서 cat /proc/cpuinfo 실행
+  physical id 의 값을 확인(0부터 시작, 동일한 값의 경우 같은 물리적 CPU)
+  core id 갯수가 core 수(cat /proc/cpuinfo |grep 'core id')
+  cpu cores 가 CPU당 코어 갯수(4는 quad, 2는 dual)
+
+
+5. Windows 시스템 정보보기
+1) 제어판 - 시스템 : 시스템정보 확인(CPU 갯수)
+2) 제어판 - 장치관리자 : 프로세서(Core 갯수)
+3)cmd 창에서
+  C:\> wmic path Win32_processor get NumberOfCores, NumberOfLogicalProcessors
+
+참고) 프로세스에 대한 전체 정보를 보고자 한다면
+  C:\> wmic
+  wmic:root\cli>path win32_processor

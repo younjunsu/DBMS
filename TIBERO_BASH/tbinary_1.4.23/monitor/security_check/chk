@@ -1,0 +1,347 @@
+# Configuration --------------------------------
+USER=sys; export USER
+PASS=tibero; export PASS
+OS=`uname -s`; export OS
+OSVER=`uname -r`; export OSVER
+TVER_CHK=5; export TVER_CHK
+
+# SYS Password Input ----------------------------------
+input_pass(){
+clear
+echo " =========================================="
+echo " SECURITY CHECK                      by_ljh"
+echo " =========================================="
+    stty -echo
+    echo -e " Enter SYS Password : \c"
+  read PASS
+  stty echo
+}
+
+input_pass
+
+# SQL Run Function ----------------------------
+run_sql(){
+    tbsql -s $USER/$PASS @$TBINARY_PATH/security_check/sc/$1
+}
+
+# Message Function -----------------------------
+print_done(){
+  echo "                              "
+  echo "Press Enter Key to continue..."
+}
+
+# Print Menu -------------------------------------
+print_menu(){
+echo " =========================================="
+echo " SECURITY CHECK                      by_ljh"
+echo " =========================================="
+echo " ----------------------------------------------------------------------------------------"
+echo "  1. ACCOUNT                                |  2. ACCESS                                 "
+echo " ------------------------------------------ + -------------------------------------------"
+echo "  11(D1) - List of Changed Password         |  21(D5) - Restrict / Access IP             "
+echo "  12(D2) - Unused Users                     |  22(D6) - Approach System Table            "
+echo "  13(D3) - Password Policy                  |  23(D15) - Login Failed Lock Policy        "  
+echo "  14(D4) - List of Grantee (Role)           |  24(D16) - Check DB User's UMASK           "            
+echo "  15(D12) - Password Reuse Policy           |  25(D17) - Check Access Right of Files     " 
+echo "  16(D13) - List of Users                   |                                            " 
+echo " ----------------------------------------------------------------------------------------"
+echo "  3. OPTION                                 |  4. PATCH & AUDIT                          "
+echo " ------------------------------------------ + -------------------------------------------"
+echo "  31(D19) - Check PASSWORD_VERIFY_FUNCTION  |  41(D10) - Recent DB version / Patch list  "
+echo "  32(D20) - Unauthorized User's Object      |  42(D11) - Audit Policy                    "
+echo "  33(D21) - Check Grant Option              |  43(D24) - Audit Table's Owner             "
+echo "  34(D22) - Check Memory Resource           |                                            "
+echo " ----------------------------------------------------------------------------------------"
+}
+
+choose_num(){
+echo 
+if [ $OS = "Linux" ] ; then
+  echo -e " Choose the Number or Command : \c "
+elif [ $OS = "SunOS" ] ; then
+  if [ $OSVER = "5.10" ] ; then
+    echo ' Choose the Number or Command : \c '
+  else
+    echo -n " Choose the Number or Command : "
+  fi
+else
+  echo ' Choose the Number or Command : \c '
+fi
+}
+
+back_to_menu(){
+clear
+break;
+print_menu
+}
+
+wrong_number(){
+echo
+echo
+echo
+echo "You choose wrong number."
+echo "Try Again.."
+sleep 1
+}
+
+
+#### MAIN MENU ####
+
+while true
+do
+clear
+print_menu
+choose_num
+read i_number
+case $i_number in
+
+# 1.ACCOUNT ---------------------------------------
+
+11)
+clear
+echo "============================"
+echo " List of Changed Password   "
+echo "============================"
+run_sql 11.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+12)
+clear
+echo "============================"
+echo " Unused user (default user) "
+echo "============================"
+run_sql 12.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+13)
+clear
+echo "======================="
+echo " Check Password Policy "
+echo "======================="
+run_sql 13.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+14)
+clear
+echo "========================"
+echo " List of Grantee (ROLE) "
+echo "========================"
+run_sql 14.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+15)
+clear
+echo "========================"
+echo " Password Reuse Poilicy "
+echo "========================"
+run_sql 15.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+16)
+clear
+echo "========================"
+echo " List of Users "
+echo "========================"
+run_sql 16.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+
+# 2. ACCESS ---------------------------------------
+
+21)
+clear
+echo "============================"
+echo " Restrict / Access IP       "
+echo "============================"
+run_sql 21.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+22)
+clear
+echo "============================"
+echo " Approach System Table      "
+echo "============================"
+run_sql 22.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+23)
+clear
+echo "==========================="
+echo " Login Failed Lock Policy  "
+echo "==========================="
+run_sql 23.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+24)
+clear
+echo "========================"
+echo " Check DB User's UMASK  "
+echo "========================"
+sh ./sc/24.sh 
+print_done
+read sc
+;;
+
+25)
+clear
+run_sql 25.sql <<EOF
+quit
+EOF
+clear
+echo "============================="
+echo " Check Access Right of Files "
+echo "============================="
+echo " "
+ls -al $TB_HOME/config/$TB_SID.tip
+ls -al $TB_HOME/client/config/tbdsn.tbr
+export TB_PASSWD=$(cat passwd.txt)
+ls -al $TB_PASSWD.passwd
+rm passwd.txt
+print_done
+read sc
+;;
+
+# 3. OPTION ----------------------------------------
+
+31)
+clear
+echo "==============================="
+echo " Check PASSWORD_VERIFY_FUNCTIO "
+echo "==============================="
+run_sql 31.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+32)
+clear
+echo "============================"
+echo " Unauthorized User's Object "
+echo "============================"
+run_sql 32.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+33)
+clear
+echo "====================="
+echo " Check Grant Option  "
+echo "====================="
+run_sql 33.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+34)
+clear
+echo "======================="
+echo " Check Memory Resource "
+echo "======================="
+run_sql 34.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+
+# 4. PATCH & AUDIT  ----------------------------------------
+
+41)
+clear
+echo "================================"
+echo " Recent DB version / Patch list "
+echo "================================"
+sh ./sc/41.sh
+print_done
+read sc
+;;
+
+42)
+clear
+echo "================"
+echo " Audit Policy   "
+echo "================"
+run_sql 42.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+43)
+clear
+echo "====================="
+echo " Audit Table's Owner       "
+echo "====================="
+run_sql 43.sql <<EOF
+quit
+EOF
+print_done
+read sc
+;;
+
+x|X)
+clear
+echo "Good bye..."
+echo
+exit
+;;
+
+
+*)
+echo
+echo
+echo
+echo "You choose wrong number."
+echo "Try Again.."
+sleep 1
+;;
+
+esac
+
+done
+

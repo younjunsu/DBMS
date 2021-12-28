@@ -1,0 +1,130 @@
+Single & TAC 패치
+
+Tibero유저 접속
+
+0. 사전준비작업
+  $ mkdir tbinary/binary
+
+
+0. Binary 준비
+  위에서 생성한 폴더로 Patch Binary FTP전송
+
+
+0. Patch Binary 설치
+  $ gunzip tibero4-bin-4.0sp1-linux32_noir-52488-opt-tested.tar.gz
+  $ tar -xvf tibero4-bin-4.0sp1-linux32_noir-52488-opt-tested.tar
+
+
+0-1. INVALID OBJECT 확인
+  SQL>
+   set linesize 120
+   col object_name format A30
+   col owner format a20
+
+   select owner, object_name, object_type, status
+   from dba_objects
+   where status='INVALID';
+
+
+0-2. 기존 ControlFile Backup (기존버전이 4sp1 r52220 이하일 경우)
+  $ tbsql sys/tibero
+  SQL> alter database backup controlfile to trace as 'c1.sql';
+  SQL> quit
+
+1. Tibero종료
+  $ tbdown immediate  <= TAC의 경우 node 둘다 tbdown
+  $ tbcm -d           <== TAC의 경우 둘다 tbdown후에 tbcm 종료
+
+2. Tibero Binary Backup
+  $ mv ~/tibero4 ~/tibero4_53706_110819             <== 기존 Tibero4 Backup.. 이름은
+tibero4_<build버전>_<변경일자>
+
+3. 준비된 패치 move
+  $ mv ~/patch/tibero4 ~/tibero4
+
+4. 환경설정
+  $ cd $TB_HOME/config
+  $ gen_tip.sh
+  $ gen_psm_cmd.sh
+  $ cd ../client/config
+  $ gen_esql_cfg.sh
+
+5. 이전 환경정보 복원
+  $ cp ~/tibero4_53706_110819/config/$TB_SID.tip $TB_HOME/config
+  $ cp ~/tibero4_53706_110819/client/config/tbdsn.tbr $TB_HOME/client/config   <== 파일명은 Tibero버전에 따라
+tbdsn.tbr 혹은 tbnet_alias.tbr
+  $ cp ~/tibero4_53706_110819/client/config/*.cfg $TB_HOME/client/config
+  $ cp -R ~/tibero4_53706_110819/license  $TB_HOME
+  $ cp -R ~/tibero4_53706_110819/client/bin/gw4orcl $TB_HOME/client/bin         <== Gateway사용 시
+
+5-1. PORT 변경   <== 패치시 AP에서 접속이 예상될 경우 잠시 포트를 변경한다
+  $ vi $TB_HOME/config/$TB_SID.tip
+  $ vi $TB_HOME/client/config/tbdsn.tbr  <== 파일명은 Tibero버전에 따라 tbdsn.tbr 혹은 tbnet_alias.tbr
+
+5-2. tip 파일 추가
+   Tibero 4 SP1 r50765 이전 버전이었으면 $TB_SID.tip 파일에 _OPT_V2=N  추가
+
+6. Tibero시작
+  $ tbcm -b            <== TAC의 경우
+
+  6-1. 기존버전이 4sp1 r52220 이하일 경우
+    $ tbboot -t nomount
+    $ tbsql sys/tibero  <== 접속이 않될경우 tbdsn.tbr에서 fail_over확인
+    SQL> @c1.sql
+    $ tbdown
+    $ tbboot mount
+    SQL> alter database recover automatic;
+    SQL> alter database open;
+    SQL> ALLTER TABLESPACE TEMP ADD TEMPFILE ...  <== Temp 테이블 생성. c1.sql 확인
+
+  6-2. 기존버전이 4sp1 r52220 이상일 경우
+    $ tbboot
+
+7. Dictionary갱신
+  $ cd $TB_HOME/scripts
+  $ ./system.sh          <== Tibero DB의 sys,syscat,sysgis 유저 비밀번호를 변경했을 경우 Script내 id_passwd 설정
+변경 필요(Script내 5곳 존재)
+
+8. Object Recompile (recompile all 기능 사용금지 : 일부 제한된 버전에서만 사용)
+  $ tbsql sys/tibero
+  SQL> alter system recompile all;
+  SQL> quit
+
+  -- INVALID SYNONYM script 수행
+   SQL>
+    @pkg/pkg_synonym.sql
+    @pkg/pkg_synonym2.sql
+    @pkg/pkg_dbms_redefinition.sql
+    @create_gis.sql
+
+9. 패치후 INVALID OBJECT 확인
+  SQL>
+   set linesize 120
+   col object_name format A30
+   col owner format a20
+
+   select owner, object_name, object_type, status
+   from dba_objects
+   where status='INVALID';
+
+9-1. OBJECT Compile
+   -- PROCEDURE, FUNCTION,TRIGGER COMPILE
+   ALTER <OBJECT_TYPE> <OWNER.OBJECT_NAME> COMPILE;
+
+10-1. TAC 2번 node
+   $ 2~5번 작업진행
+
+10-2. TAC 재기동
+   $ tbdown    <== 1번node Tibero 종료
+   $ tbcm -d   <== 1번node tbcm 종료
+   $ tbcm -b   <== 양쪽노드 tbcm 시작
+   $ tbboot    <== 양쪽노드 Tibero 시작
+
+
+11. Driver갱신
+  필요 시 Application에서 사용하는 JDBC Driver나 ODBC DLL파일을 신규 Driver로 갱신
+
+
+
+추가작업...
+필요시.. Stat정보 삭제..???

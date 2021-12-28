@@ -1,0 +1,13 @@
+# sqltrace dump
+SQL> alter session set sql_trace=y;
+SQL> << query >>
+SQL> alter session set sql_trace=n;
+
+dump loacation : cd $TB_HOME/instance/$TB_SID/log/sqltrace 
+
+$ tbprof << sqltrace_dump_file >> << sqltrace_file_name >>
+
+# AUTOTRACE 
+AUTOT[RACE] {OFF|ON|TRACE[ONLY]} [EXP[LAIN]] [STAT[ISTICS]] [PLANS[TAT]]
+
+SQL> set autot on

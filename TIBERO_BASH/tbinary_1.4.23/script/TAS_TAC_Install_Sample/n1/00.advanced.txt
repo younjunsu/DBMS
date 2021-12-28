@@ -1,0 +1,22 @@
+1. Copy Env .bash_profile
+   $ cp /home/tibero/files/profile $HOME/.bash_profile
+
+2. .bash_profile apply
+   $ cd $HOME
+   $ . ./.bash_profile
+
+3. Copy Tibero Binary(check BinaryName)
+   $ cp /home/tibero/files/tibero6-bin-FS06_CS_1709-linux64-154410-opt-20180515132202.tar.gz $HOME/.
+
+4. Uncompress Binary(check BinaryName)
+   $ gzip -dc /home/tibero/files/tibero6-bin-FS06_CS_1709-linux64-154410-opt-20180515132202.tar.gz | tar xvf -
+
+5. Tibero Config Files Generate
+   $ sh $TB_HOME/config/gen_tip.sh
+
+6. Copy Tibero Env && License Files 
+   $ cp /home/tibero/files/cm*.tip $TB_HOME/config/. 
+   $ cp /home/tibero/files/tas*.tip $TB_HOME/config/. 
+   $ cp /home/tibero/files/tac*.tip $TB_HOME/config/. 
+   $ cp /home/tibero/files/tbdsn.tbr $TB_HOME/client/config/. 
+   $ cp /home/tibero/files/license.xml $TB_HOME/license/. 

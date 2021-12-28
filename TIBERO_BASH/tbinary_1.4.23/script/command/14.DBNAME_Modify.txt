@@ -1,0 +1,22 @@
+DB Rename Step
+
+<1> Single
+1. $ tbdown immediate
+2. $ tbboot mount
+3. sql> alter database rename to "<<NewDBName>>";
+4. $ tbdown immediate
+5. $ vi $TB_HOME/config/$TB_SID.tip ( DB_NAME Modify )
+6. $ vi $TB_HOME/client/config/tbdsn.tbr ( DB_NAME Modify )
+7. $ tbboot   
+
+<2> TAC
+1. $ tbdown immediate [node1,2]
+2. $ tbcm -d [node1,2]
+3. $ tbcm -b [node1]
+4. $ tbboot mount [node1]
+5. sql> alter database rename to "<<NewDBName>>";
+6. $ tbdown immediate [node1]
+7. $ vi $TB_HOME/config/$TB_SID.tip ( DB_NAME Modify ) [node1,2]
+8. $ vi $TB_HOME/client/config/tbdsn.tbr ( DB_NAME Modify ) [node1,2]
+9. $ tbcm -b [node1,2]
+10.$ tbboot [node1,2]

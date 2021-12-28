@@ -1,0 +1,58 @@
+1. TTE ( Transparent Tablespace Encryption )
+   A. tip($TB_SID.tip) setting
+      WALLET_FILE="/home/tibero/tibero6/bin/tbwallet"  
+   B. gen
+      $ $TB_HOME/bin/tbwallet_gen
+   C. Tibero Restart
+      $ tbdown immediate; 
+      $ tbboot
+   D. wallet open
+      $ tbsql sys/<password>
+      SQL> ALTER SYSTEM SET ENCRYPTION WALLET OPEN IDENTIFIED BY "<<wallet password>>";
+   E. Encryption Tablespace Create
+      SQL> CREATE TABLESPACE encrypted_ts
+           DATAFILE '+DS0/tac/datafile/encrypted_ts.dtf' SIZE 50M
+           AUTOEXTEND ON NEXT 1M
+           EXTENT MANAGEMENT lOCAL UNIFORM SIZE 256K
+           ENCRYPTION USING '3DES168'
+           DEFAULT STORAGE (ENCRYPT); 
+   F. encrypted_tablespace select
+      select * from V$ENCRYPTED_TABLESPACES;
+   G. Table Create
+      SQL> create table tte_tb ( a number , b varchar(10) ) tablespace encrypted_ts ;
+   H. Test
+      SQL> ALTER SYSTEM SET ENCRYPTION WALLET CLOSE;
+      SQL> select * from tte_tb;
+      SQL> ALTER SYSTEM SET ENCRYPTION WALLET OPEN IDENTIFIED BY "<<wallet password>>";'
+      SQL> select * from tte_tb;
+
+2. TDE ( Transparent Data Encryption )
+   A. Table create
+      SQL> CREATE TABLE tde_tb(
+           id NUMBER,
+           name VARCHAR(20) ENCRYPT,
+           address VARCHAR(50) ENCRYPT USING '3DES168',
+           email VARCHAR(20));
+   B. Data Insert
+      SQL> INSERT INTO tde_tb VALUES (1,'A', 'Seoul','tibero1@tmaxsoft.com');
+      SQL> INSERT INTO tde_tb VALUES (2,'B', 'Busan','tibero2@tmaxsoft.com');
+      SQL> INSERT INTO tde_tb VALUES (3,'C', 'Gwangju','tibero3@tmaxsoft.com');
+      SQL> commit;
+   C. Table select
+      SQL> COL name FORMAT a20
+      SQL> COL address FORMAT a20
+      SQL> SELECT * FROM tde_tb;
+   D. encrypted_columns select
+      SQL> COL table_name FORMAT a20
+      SQL> COL column_name FORMAT a20
+      SQL> SELECT table_name,column_name,encryption_alg,salt FROM dba_encrypted_columns;
+   E. name column decrypt
+      SQL> ALTER TABLE tde_tb MODIFY(name DECRYPT);
+   F. encrypted_columns select
+      SQL> COL table_name FORMAT a20
+      SQL> COL column_name FORMAT a20
+      SQL> SELECT table_name,column_name,encryption_alg,salt FROM dba_encrypted_columns;
+   G. create index -- Encrypted columns can not be indexed.
+      SQL> create index tde_tb_IDX on tde_tb(ADDRESS);
+   H. create index -- Index creation using encrypted tablespaces is possible.
+      SQL> create index tde_tb_IDX on tde_tb(ADDRESS) TABLESPACE encrypted_ts ENABLE RANGE;

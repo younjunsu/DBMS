@@ -1,0 +1,45 @@
+# tip file generated from /home/tibero/tibero6/config/tip.template (Mon Mar 26 23:41:18 KST 2018)
+#-------------------------------------------------------------------------------
+#
+# RDBMS initialization parameter
+#
+#-------------------------------------------------------------------------------
+DB_NAME=tac
+LISTENER_PORT=8629
+CONTROL_FILES="+DS0/tac/control/ctl1.ctl","+DS0/tac/control/ctl2.ctl"
+DB_CREATE_FILE_DEST="+DS0/tac/datafile"
+LOG_ARCHIVE_DEST="+DS0/arc/"
+
+CERTIFICATE_FILE="/home/tb6/tibero6/config/svr_wallet/tb6.crt"
+#PRIVKEY_FILE="/home/tb6/tibero6/config/svr_wallet/tb6.key"
+#WALLET_FILE="/home/tb6/tibero6/config/svr_wallet/WALLET"
+#ILOG_MAP="/home/tb6/tibero6/config/ilog.map"
+
+PSM_SHLIB_DIR="/home/tibero/tbdata/psm"
+JAVA_CLASS_PATH="/home/tibero/tbdata/java"
+
+MAX_SESSION_COUNT=20
+TOTAL_SHM_SIZE=1G
+MEMORY_TARGET=2G
+
+# Tibero Active Storage
+USE_ACTIVE_STORAGE=Y
+AS_PORT=8029
+
+# Tibero Active Cluster
+CLUSTER_DATABASE=Y
+THREAD=1
+UNDO_TABLESPACE=UNDO1
+CM_PORT=6629
+LOCAL_CLUSTER_ADDR=10.0.0.32
+LOCAL_CLUSTER_PORT=7629
+
+# DATE FORMAT
+NLS_DATE_FORMAT="YYYY/MM/DD HH24:MI:SS"
+
+# WALLET
+#WALLET_FILE="/home/tibero/tibero6/bin/tbwallet"
+
+# Gather SQL TIME/STAT info
+GATHER_SQL_EXEC_TIME=Y
+GATHER_SQL_PLAN_STAT=Y

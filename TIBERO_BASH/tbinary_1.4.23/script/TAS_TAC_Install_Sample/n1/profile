@@ -1,0 +1,57 @@
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
+fi
+
+# User specific environment and startup programs
+
+PATH=$PATH:$HOME/bin
+
+export PATH
+
+set -o vi
+PS1='$LOGNAME@$HOSTNAME[$TB_SID]:$PWD> '
+
+### Tibero 6 ENV ###
+export TB_HOME=/home/tibero/tibero6
+export TB_SID=tac1
+export PATH=.:$TB_HOME/bin:$TB_HOME/client/bin:$PATH
+export LD_LIBRARY_PATH=$TB_HOME/lib:$TB_HOME/client/lib:$LD_LIBRARY_PATH
+
+tac()
+{
+export TB_SID=tac1
+}
+tas()
+{
+export TB_SID=tas1
+}
+
+### For CM ENV ###
+export CM_HOME=$TB_HOME
+export CM_SID=cm1
+
+### Tibero alias ###
+alias tbhome='cd $TB_HOME'
+alias tbbin='cd $TB_HOME/bin'
+alias tbdata='cd /home/tibero/tbdata'
+alias tblog='cd $TB_HOME/instance/$TB_SID/log'
+alias tbcfg='cd $TB_HOME/config'
+alias tbcfgv='vi $TB_HOME/config/$TB_SID.tip'
+alias tbcli='cd ${TB_HOME}/client/config'
+alias tbcliv='vi ${TB_HOME}/client/config/tbdsn.tbr'
+alias tbi='cd ~/tbinary'
+alias tm='~/tbinary/monitor/monitor'
+alias sl='tail -f $TB_HOME/instance/$TB_SID/log/slog/sys.log'
+# TB_NLS_LANG
+export TB_NLS_LANG=UTF8 
+
+### Tibero CLI/ODBC Dump ###
+#export TBCLI_LOG_LVL=TRACE
+#export TBCLI_LOG_DIR=<<tbcli log dir>>
+
+### Tibero OLEDB Dump ###
+#export TB_OLEDB_LOG=4
+#export TB_OLEDB_LOG_DIR=<<tboledb log dir>>

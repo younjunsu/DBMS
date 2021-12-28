@@ -1,0 +1,7 @@
+## Tibero Boot / Down 
+$ cmrctl start db --name tac2 --remote cm2@cluster1
+$ cmrctl stop db --name tac2 --remote cm2@cluster1
+
+## cmrctl show
+$ cmrctl show --remote cm2@cluster1
+$ cmrctl show cluster --remote cm2@cluster1

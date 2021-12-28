@@ -1,0 +1,344 @@
+#!/bin/sh
+#-------------------------------------------------------------------------------
+# @File name      : Tam.run
+# @Contents       : Tibero Active Session Monitoring Ver2.0
+# @Created by     : Mystery Sung
+# @Created date   : 2008.03
+# @Team           : DB Tech
+# @Modifed History
+# ------------------------------------------------------------------------------
+# 2008.03.30 Mystery Sung & Cris Created  (Ver1.0)
+# 2010.02.22 Mystery Sung Modified        (Ver2.0)
+# 2013.03.20 GC Lee    Modified           (Ver2.1)
+# 2013.10.01 Gim Gwon Hwan Modified       (Ver3.0)
+# ------------------------------------------------------------------------------
+
+print_done(){
+  echo "Refresh interval : $1 (sec)"
+}
+
+print_wellet(){
+  echo "========================="
+  echo " Using tbsql wallet file. "
+  echo "========================="
+}
+
+tam_stop(){
+  if [ $OS = "Linux" ] ; then
+    echo -e "Input X key and press ENTER key to exit : \c"
+  elif [ $OS = "SunOS" ] ; then
+    if [ $OSVER = "5.10" ] ; then
+      echo 'Input X key and press ENTER key to exit : \c'
+    else
+      echo -n "Input X key and press ENTER key to exit : "
+    fi
+  else
+    echo 'Input X key and press ENTER key to exit : \c'
+  fi
+
+  INPUT=`sh -c '(sleep $INTERVAL ; kill $$) > /dev/null &
+    trap exit 15
+    read r_var
+    kill $!
+    echo $r_var
+    ' 2> /dev/null`
+
+  if [ "$INPUT" = "X" -o "$INPUT" = "x" ] ; then
+    exit 0
+  fi
+}
+
+# SYS Password Input ----------------------------------
+input_pass(){
+  stty -echo
+  echo
+  if [ $OS = "Linux" ] ; then
+    echo -e "Enter SYS Password : \c"
+  else
+    echo 'Enter SYS Password : \c'
+  fi
+  read PASS
+  stty echo
+}
+
+# Wallet File Check ---------------------------
+wallet_sys_chk() {
+
+if [ $OS = "SunOS" ] ; then
+  if [ -n -e "$ISQL_WALLET_PATH" -a "$ISQL_WALLET_PATH" ] ; then
+CONN_USER=`tbsql -s << EOF
+  set heading off;
+  set feedback off;
+  select username from user_users;
+EOF`
+
+    if [ "$CONN_USER" = "SYS" ] ; then
+      WALLET_CHK=1
+      print_wellet
+      sleep 1
+    else
+      input_pass
+    fi
+
+  else
+    if [ "$TM_RUN_CHK" != 1 ] ; then 
+      input_pass
+    fi
+  fi
+else
+  if [ -n "$ISQL_WALLET_PATH" -a -e "$ISQL_WALLET_PATH" ] ; then
+CONN_USER=`tbsql -s << EOF
+  set heading off;
+  set feedback off;
+  select username from user_users;
+EOF`
+
+    if [ "$CONN_USER" = "SYS" ] ; then
+      WALLET_CHK=1
+      print_wellet
+      sleep 1
+    else
+      input_pass
+    fi
+
+  else
+    if [ "$TM_RUN_CHK" != 1 ] ; then
+      input_pass
+    fi
+  fi
+fi
+}
+
+# SQL Run Function ----------------------------
+run_sql(){
+  if [ "$WALLET_CHK" = 1 ] ; then
+    tbsql -s @$MONITOR/sql/$1
+  else
+    tbsql -s $USER/$PASS @$MONITOR/sql/$1
+  fi
+  echo
+}
+
+
+# Start tam.run shell -------------------------
+if [ $# -ne 2 ] ; then
+  if [ "TM_RUN_CHK" != 1 ] ; then
+    echo
+    echo "Usage : $0 <Option> <Interval> "
+  fi
+  echo
+  echo "   Option    Description                     "
+  echo "   --------  --------------------------------------"
+  echo "   jcnt      jcntstat information"
+  echo "   redowait  redo wait statistics "
+  echo "   runsess   current running session"
+  echo "   session   current session"
+  echo "   sessio    session i/o information"
+  echo "   sessevent session event information"
+  echo "   sevent    system event statistics"
+  echo "   spin      spinlock statistics"
+  echo "   swait     current session wait information"
+  echo "   sysstat   sysstat information"
+  echo "   tempseg   temp segment usage"
+  echo "   tran      current transaction"
+  echo
+  exit 101
+fi
+
+# Interval Number Check ------------------------
+OPTION=$1; export OPTION
+INTERVAL=$2; export INTERVAL
+OS=`uname -s`; export OS
+
+r_int=`echo $INTERVAL | tr -d '[0-9]'`
+if [ -n "$r_int" ]; then
+  echo "ERROR : Input interval value is only number"
+  echo
+  exit 102
+fi
+
+# Wallet File Check -----------------------------
+if [ "$TM_RUN_CHK" != 1 ] ; then
+  if [ -n "$TBINARY_PATH" ] ; then
+    MONITOR=$TBINARY_PATH/monitor; export MONITOR
+  else
+    MONITOR=$HOME/tbinary/monitor; export MONITOR
+  fi
+  USER=sys; export USER
+  PASS=tibero; export PASS
+  WALLET_CHK=0; export WALLET_CHK
+fi
+
+if [ "$WALLET_CHK" != 1 ] ; then
+  wallet_sys_chk
+fi
+
+case $OPTION in
+  jcnt)
+    while true
+    do
+      clear
+      echo "JcntStat Information"
+      echo "===================="
+      uptime
+      run_sql 4_jcnt.sql
+      print_done $INTERVAL
+      tam_stop $INTERVAL
+    done
+  ;;
+
+  redowait)
+    while true
+    do
+      clear
+      echo "Redo Nowait Information"
+      echo "======================="
+      uptime
+      run_sql 4_redonowait.sql
+      print_done $INTERVAL
+      tam_stop $INTERVAL
+    done
+  ;;
+
+  runsess)
+    while true
+    do
+      clear
+      echo "Current Running Session Information"
+      echo "==================================="
+      uptime
+      run_sql 3_run_session.sql
+      print_done $INTERVAL
+      tam_stop $INTERVAL
+    done
+  ;;
+
+  session)
+    while true
+    do
+      clear
+      echo "Current Session Information"
+      echo "==========================="
+      uptime
+      run_sql 3_current_session.sql
+      print_done $INTERVAL
+      tam_stop $INTERVAL
+    done
+  ;;
+
+  sessio)
+    while true
+    do
+      clear
+      echo "Session I/O Information"
+      echo "======================="
+      uptime
+      run_sql 6_session_io.sql
+      print_done $INTERVAL
+      tam_stop $INTERVAL
+    done
+  ;;
+
+  sessevent)
+    echo
+    sh $MONITOR/sql/4_session_event.sh
+    while true
+    do
+      clear
+      echo "Session Event Information"
+      echo "========================="
+      uptime
+      run_sql 4_session_event.sql
+      print_done $INTERVAL
+      tam_stop $INTERVAL
+    done
+  ;;
+
+  sevent)
+    while true
+    do
+      clear
+      echo "System Event Information"
+      echo "========================"
+      uptime
+      run_sql 4_system_event.sql
+      print_done $INTERVAL
+      tam_stop $INTERVAL
+    done
+  ;;
+
+  spin)
+    while true
+    do
+      clear
+      echo "SpinLock Information"
+      echo "===================="
+      uptime
+      run_sql 2_latch.sql
+      print_done $INTERVAL
+      tam_stop $INTERVAL
+    done
+  ;;
+
+  swait)
+    while true
+    do
+      clear
+      echo "Current Session Wait Information"
+      echo "================================"
+      uptime
+      run_sql 4_session_wait.sql
+      print_done $INTERVAL
+      tam_stop $INTERVAL
+    done
+  ;;
+
+  sysstat)
+    while true
+    do
+      clear
+      echo "Sysstat Information"
+      echo "==================="
+      uptime
+      run_sql 4_sysstat.sql
+      print_done $INTERVAL
+      tam_stop $INTERVAL
+    done
+  ;;
+
+  tempseg)
+    while true
+    do
+      clear
+      echo "Tempseg Usage Information"
+      echo "========================="
+      uptime
+      run_sql 5_tempseg_usage.sql
+      print_done $INTERVAL
+      tam_stop $INTERVAL
+    done
+  ;;
+
+  tran)
+    while true
+    do
+      clear
+      echo "Current Transaction Information"
+      echo "==============================="
+      uptime
+      run_sql 3_current_transaction.sql
+      print_done $INTERVAL
+      tam_stop $INTERVAL
+    done
+  ;;
+
+  *)
+    echo
+    echo
+    echo
+    echo "You choose wrong option."
+    echo "Try Again.."
+    sleep 1
+  ;;
+
+esac

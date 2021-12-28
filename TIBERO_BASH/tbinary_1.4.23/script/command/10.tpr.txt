@@ -1,0 +1,28 @@
+# parameters(tip)
+TIBERO_PERFORMANCE_REPOSITORY  (default:Y)
+TPR_SNAPSHOT_RETENTION         (default:7)  day
+TPR_SNAPSHOT_SAMPLING_INTERVAL (default:60) minute
+TPR_SNAPSHOT_TOP_SQL_CNT       (default:5)  count
+GATHER_SQL_EXEC_TIME           (default:N) 
+GATHER_SQL_PLAN_STAT           (default:N) 
+
+# create snapshot
+exec dbms_tpr.create_snapshot_all; ( all instance )
+exec dbms_tpr.create_snapshot;     ( current instance )
+
+# snapshot info
+set lines 200
+select * from _tpr_snapshot order by BEGIN_INTERVAL_TIME ;
+
+# create report
+alter session set nls_date_format = 'yyyy/mm/dd hh24:mi:ss';
+exec dbms_tpr.report_text('<<BEGIN_INTERVAL_TIME>>','<<END_INTERVAL_TIME>>');
+exec dbms_tpr.report_text('<<BEGIN_INTERVAL_TIME>>','<<END_INTERVAL_TIME>>','<<INSTANCE_NUMBER>>');
+
+exec dbms_tpr.report_text_last; ( last snapshot report )
+
+# report location
+cd $TB_HOME/instance/$TB_SID
+
+# file
+file : tpr_report.{db_name}.{current_time}.txt

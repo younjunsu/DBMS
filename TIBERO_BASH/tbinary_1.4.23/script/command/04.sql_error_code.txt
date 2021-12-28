@@ -1,0 +1,16 @@
+# Error Code dump on
+alter system dump callstack on error -<<Error_code>> on;
+
+# Error Code dump off
+alter system dump callstack on error -<<Error_code>> off;
+
+ex)
+alter system dump callstack on error -5074 on;
+
+create table dump_test ( a number );
+
+var b1 varchar(10);
+exec :b1 := 'TEST';
+insert into dump_test values ( :b1 );
+
+alter system dump callstack on error -5074 off;

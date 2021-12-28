@@ -1,0 +1,15 @@
+1. AS commandline Tool ( tbascmd <tas:port> )
+   $ tbascmd 8029
+
+2. AS command  ( ASCMD> <command> )
+   cd 
+   du
+   exit
+   help
+   ls
+   lsds
+   pwd
+   rm
+   cp
+   cpfromlocal
+   cptolocal

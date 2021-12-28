@@ -1,0 +1,25 @@
+1. execute
+$TB_HOME/bin/tb_cert_manager
+
+2. make files
+cd $TB_HOME/config/tb_wallet/
+Public key-based private key : {$TB_SID}.key
+Certificate Signing Request  : {$TB_SID}.csr
+certificate                  : {$TB_SID}.crt
+
+3. ssl port
+_LSNR_SSL_PORT = LISTENER_PORT + 2
+
+select * from vt_parameter where name = '_LSNR_SSL_PORT';
+
+4. $TB_HOME/client/config/tbdsn.tbr 
+
+tac1ssl=(
+    (INSTANCE=(HOST=192.168.56.101)
+              (PORT=8629)
+              (DB_NAME=tac)
+              (USE_SSL=Y) --SSL setting
+    )
+)
+
+

@@ -1,0 +1,18 @@
+# Disk drop(rebalance)
+SQL> alter diskspace ds0 drop disk  DISK2 rebalance;
+
+# Disk drop
+SQL> alter diskspace ds0 drop disk DISK2 rebalance;
+SQL> alter diskspace ds0 rebalance;
+
+# Disk add(rebalance)
+SQL> alter diskspace ds0 add disk '/dev/tibero-tas-disk2' name DISK2 rebalance;
+
+# Disk add(failgroup rebalance)
+SQL> alter diskspace ds0 add failgroup fg2 disk '/dev/tibero-tas-disk2' name disk2 rebalance;
+
+# Disk add
+SQL> alter diskspace ds0 add disk '/dev/tibero-tas-disk2' name DISK2 ;
+
+# Unprepare
+SQL> alter diskspace ds0 unprepare disk DISK2;

@@ -1,0 +1,190 @@
+=======================================
+= Tibero Tbinary 통합버전 릴리즈 정보 =
+=======================================
+
+2011.03.15  : Ver.1.0
+ - monitor 스크립트 추가 (Ver2.1)
+ - monitor_win 스크립트 추가 (Ver2.0)
+ - PGA 메모리 체크 스크립트 추가 (tbinary/monitor/mon.sh)
+     * 필요한 부분만 수정해서 백그라운드로 수행하시면 됩니다.
+ - 정기점검 스크립트 추가 (tbinary/tbchk/tbchk.sh)
+
+
+2011.03.28  : Ver.1.1
+ - monitor 스크립트 수정 (Ver2.2)
+     * Database Buffer Hit Ratio 계산 방법 수정
+     * Backup Status 테이블스페이스명 추가
+     * Save fo File monitor Ver2.2에 맞게 수정
+ - monitor_win 스크립트 수정 (Ver2.2)
+     * monitor 스크립트 Ver2.2와 동일하게 수정
+ - thchk 정기점검 스크립트 수정
+     * Database Buffer Hit Ratio 계산 방법 수정
+     * Blocking/Waiting Lock , Current Lock Information 조회 추가
+     * 그 외 버그 수정
+ - ./sql/cre_db.sql , ./sql/cre_tbs.sql 데이타파일 확장자 변경(tdf ->dbf)
+
+
+2011.04.05  : Ver.1.1.1
+ - monitor & monitor_win 스크립트 수정 (Ver2.2.1)
+     * Current Session Info SQL_ID 추가
+
+2011.04.08  : Ver.1.1.1 fix1
+ - monitor & monitor_win 스크립트 수정 (Ver2.2.1)
+     * Current Session Info linesize 및 colum size 조절
+
+2011.04.18  : Ver.1.1.1 fix2
+ - monitor & monitor_win 스크립트 수정 (Ver2.2.1)
+     * Backup status tablespace 순으로 정렬
+     * lock sql plan 오류 수정
+
+2011.12.12  : Ver.1.1.2
+ - monitor & monitor_win 스크립트 수정 (Ver2.2.2)
+     * Current Session Info SID 순으로 정렬
+     * Backup Status Mount Mode 에서도 조회가능 하도록 변경
+ - OS별 서버정보 조회 방법 문서 첨부
+     * tbinary\ncpu\system_check_guide.txt
+ - Tibero 패치 가이드 문서 첨부
+     * tbinary\info\tibero_patch_guide.txt
+
+2011.12.14  : Ver.1.1.3
+ - OS별 서버정보 조회 방법 문서 수정
+     * tbinary\ncpu\system_check_guide.txt
+ - HA Cluster Script 첨부
+     * tbinary\script\HA Cluster Script
+ - HA Test Monitor 스크립트 추가
+     * tbinary\monitor\ha_mon.sh
+
+
+2013.03.28 : Ver.1.2
+
+ 1)  monitor script 수정 (v2.3)
+  * warning message 출력
+  * password 입력 방식으로 변경 (기존 방법대로 사용하려면 쉘을 직접 수정)
+  * Current Lock 정보 변경
+    - Current Lock => DML Lock
+    - Object Lock Monitoring 추가(Table lock , WLOCK_DD_OBJ)
+  * SQL plan
+    - sqlplan 조회 방식 변경(t5 stype)
+    - sql execution stat 조회 추가
+  * APM 관련
+    - apmshow : apm snapshot 조회
+    - apmc : apm snapshot 생성(single instance)
+    - apmc_tac : apm snapshot 생성( TAC )
+    - apmrpt : apm report 출력 (snapshot 시점 입력 필요)
+  * instance
+    - DB uptime 추가
+   * 기타 (세션,spinlock ..)
+
+ 2) tam.run 수정
+  * 쉘 오류 수정
+  * session event 추가
+  [tibero5@tbsvr monitor]$ tam.run
+
+  Usage : ./tam.run <option> <interval>
+
+   Option    Description
+   --------  --------------------------------------
+   jcnt      jcntstat information
+   session   current session
+   sessio    session i/o information
+   sessevent session event information
+   sevent    system event statistics
+   swait     current session wait information
+   sysstat   sysstat information
+   spin      spinlock statistics
+   redowait  redo wait statistics
+   tran      current transaction
+   tempu     temp segment usage
+
+ 3) tbinary/sql
+  - tac db create sample sql 추가
+
+ 4) tbcheck
+  - online log history 조회 쿼리 변경
+
+2013.08.01 : Ver.1.2.1
+ - npcu 바이너리 교체(TmaxSoft 사용 바이너리)
+ - OS 추가 및 일부 OS의 경우 cpu 개수, core 개수 추가정보출력
+
+2013.10.01 : Ver.1.3
+ 1) 스크립트 쉘 변경
+  - /usr/bin/ksh -> #!/bin/sh
+  - 변경 : ha_mon.sh , mon.sh , monitor , tam.run , tbstatus
+  
+ 2) monitor script 수정 (v3.0) (Windows 버전은 수정 안됨)
+  - passwd 입력 시 패스워드 노출 안되게 변경
+  - password wallet 파일로 자동접속 기능 추가
+    $ISQL_WALLET_PATH 환경변수 설정되어 있고 SYS 계정의 wallet 일 경우 패스워드 입력하지 않고 자동접속
+  - 환경변수로 tbinary 경로 지정 기능 추가
+    $TBINARY_PATH 환경변수 설정으로 tbinary 경로 지정 가능 (DEFAULT : $HOME/tbinary)
+    
+  - monitor 메인 화면 및 기능 번호 변경 (기능 확장성을 위해 항목별로 번호 변경)
+  - 일부 sql 변경
+  - 기능별 변경사항 및 추가 사항
+    13 - Tibero Memory Info 변경
+      메모리 사용량 비율 추가 및 컬럼 구분
+    32 - Current Running Session Info 추가
+      session status가 'ACTIVE' 를 제외하고 조회
+    45 - Session Event 추가
+      조회할 session ID 값 입력 시 조회
+    47 - Redo Nowait Info 추가
+      Archivelog Count 메뉴에서 분리
+    51 - Database File Info 변경
+      temp data file 내용 datafile 조회 목록에 포함
+    52 - Tablespace Usage 변경
+      기존 temp data file 목록 출력에서 temp data file size, maxsize 출력
+    63 - Archivelog Count 변경
+      redo nowait 항목 제외
+    71 - Schema Object Count 추가
+    72 - Object Invalid Count
+    73 - Object Invalid Object
+      Invalid synonym 제외
+    74 - Object Extents Statust
+    91 - Create APM Snapshot
+      기능 수행여부 Y/N 으로 입력
+    92 - Create APM Snapshot For TAC
+      기능 수행여부 Y/N 으로 입력
+    93 - Show APM Snapshot
+      조회 기간 입력
+    94 - Create APM Report
+      조회 기간 입력 후 기능 수행여부 Y/N 으로 입력
+    M - Auto Refresh Monitoring 추가
+      tam.run 쉘스크립트 수행
+
+ 3) make_wallet 스크립트 추가
+  - tbinary/script/make_wallet/make_wallet.sh 추가
+  - tbsql 과 tbloader 자동접속 암호화 파일(.wallet.dat) 생성
+  - 생성후 파일 권한은 600 으로 설정
+
+   Usage : make_wallet.sh <id> <password> [<connect_string>]
+
+   tbSql wallet add profile    : $ISQL_WALLET_PATH
+   tbLoader wallet add profile : $LR_WALLET_PATH
+   Default wallet file path    : /home/tibero/.wallet.dat
+
+ 4) cre_db.sql cre_db_tac.sql add_node.sql 예제 수정
+  - undo 생성 구문에 주석으로 uniform size 추가
+  - cre_db_tac.sql에 maxinstace 문장 삭제
+  - redo size 수정
+  - maxdatafiles 수정
+  
+ 5) chk_cpu_for_license.sh 추가 및 NCPU 실행경로 수정
+  - ncpu 실행 경로를 $TB_HOME/bin/tbinfo 로 수정
+
+
+2013.11.05 : Ver.1.3.1
+ - monitor script 수정 (v3.1) (Windows 버전은 수정 안됨)
+   * TAC 환경일때 모든 Node session 정보 조회 기능 추가
+    (Current Session For TAC, Current Running Session For TAC)
+
+
+2016.02.02 
+ - Windows용 Monitor script Linux 버전과 동일하게 수정
+ - tb_instchk 추가
+   (Tibero 설치 후 설치확인서 작성을 위한 정보 한번에 조회할 수 있는 스크립트)
+ - 라이선스 발급용 정보 조회 쉘 수정
+    ncpu/tib_chk_cpu_for_license.sh 
+    (Tibero 전용 / OS버전별 ncpu 수행할 수 있도록 지정)
+
+2016.09.27
+ - Windows용 Monitor script 에러 수정

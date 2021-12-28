@@ -1,0 +1,67 @@
+#!/bin/sh
+#########################################################################################
+# Tibero Status 
+# created by : Chris (IA/DB Technology Team) (2007.08.31)
+# modify     : Chris (2007.09.05)
+# modify     : Chris (2008.01.24) -- HP-UX 
+# modify     : Chris (2008.02.04) -- Working Thread Count
+# modify     : Chris (2008.02.11) -- tbdown을 이용하자
+#
+#########################################################################################
+
+SRV_NAME=$TB_SID
+
+echo 
+echo "======================="
+echo "Tibero Status"
+echo "-----------------------------------------------------------------------------------"
+echo "  DB Name   = $SRV_NAME"
+
+db_stat=`ps -u $LOGNAME|grep tbsvr|grep -v grep |wc -l`
+
+if [ $db_stat = 0 ]
+then
+echo "  ----------------------------------------------"
+echo "  Not Running..."
+echo "  ----------------------------------------------"
+
+
+else
+Listener=`ps -u $LOGNAME -f|grep tblistener|grep -v grep|awk '{print $2}'`
+PWT=`ps -efL|grep $LOGNAME|grep tbsvr_WT001 |grep -v grep |wc -l`
+WT=`expr "$PWT" - 1`
+MTHR=`tbdown pid|grep "MTHR"|grep -v grep|awk -F: '{print $1}'`
+SEQW=`tbdown pid|grep "SEQW"|grep -v grep|awk -F: '{print $1}'`
+LGWR=`tbdown pid|grep "LOGW"|grep -v grep|awk -F: '{print $1}'`
+LARC=`tbdown pid|grep "LOGA"|grep -v grep|awk -F: '{print $1}'`
+CKPT=`tbdown pid|grep "CKPT"|grep -v grep|awk -F: '{print $1}'`
+DBWR=`tbdown pid|grep "BLKW"|grep -v grep|awk -F: '{print $1}'`
+WTC=`tbdown pid|grep "WT"|grep -v grep |wc -l`
+
+echo "  -------------------"
+echo "  Running..."
+echo "  -------------------"
+echo
+echo "  ======================================"
+echo "  BackGround Processor Status"
+echo "  ======================================"
+echo "  BackGroup Process Name                               Process ID   "
+echo "  --------------------------------------               ----------   "
+echo "  Tibero Listener                                      $Listener"
+echo "  Monitor Process                                      $MTHR "
+echo "  DBWR(database buffer writer)                         $DBWR"
+echo "  LBWR(log buffer writer)                              $LGWR"
+echo "  CKPT(checkpoint)                                     $CKPT"
+echo "  LOGA(log archivor)                                   $LARC"
+echo "  SEQW(Agent)                                          $SEQW"
+echo 
+echo "  ======================================"
+echo "  Working Process Status"
+echo "  ======================================"
+echo "  Working Process Count                                $WTC "
+echo "  Working Thread / Working Process                     $WT  "
+echo
+echo "-----------------------------------------------------------------------------------"
+echo
+
+fi

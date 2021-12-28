@@ -1,0 +1,30 @@
+=============================================================================
+Tibero boot Order ( tbcm -> TAS Instance -> Tibero Instance )
+-----------------------------------------------------------------------------
+
+#1 Tibero Cluater Manager Start
+   $ tbcm -b                                   
+
+#2 Tibero Active Storage Instance Start 
+   $ export TB_SID=<<tas_sid>> ; 
+   $ tbboot ; 
+
+#3 Tibero Instance Start
+   $ export TB_HOME=<<tibero_sid>> ; 
+   $ tbboot ;
+
+=============================================================================
+Tibero down Order ( Tibero Instance -> TAS Instance -> tbcm )
+-----------------------------------------------------------------------------
+#1 Tibero Instance Stop
+   $ export TB_HOME=<<tibero_sid>> ; 
+   $ tbdown immediate ; <or abnormal or abort> 
+
+#2 Tibero Active Storage Instance Stop
+   $ export TB_SID=<<tas_sid>> ; 
+   $ tbdown ;
+
+#3 Tibero Cluater Manager Stop
+   $ tbcm -d
+
+=============================================================================

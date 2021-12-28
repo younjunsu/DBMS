@@ -1,0 +1,3 @@
+tbdown pid
+
+exit

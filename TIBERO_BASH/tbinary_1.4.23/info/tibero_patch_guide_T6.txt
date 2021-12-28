@@ -1,0 +1,38 @@
+Single & TAS & TAC 
+
+1. Tibero Shutdown
+  $ tbdown immediate  <== Common
+  $ tbdown immediate  <== Using TAS
+  $ tbcm -d           <== Using TAC
+
+2. Tibero Binary Backup
+  $ mv tibero6 tibero6_yyyymmdd   <==  Tibero Backup
+
+0. Patch Binary gunzip
+  $ gzip -dc tibero6-bin-FS07_CS_1808-linux64-159159-opt-tested.tar.gz | tar xvf - 
+
+4. Env Setup 
+  $ cd $TB_HOME/config
+  $ gen_tip.sh
+
+5. Env Copy
+  $ cp ~/tibero6_yyyymmdd/config/$TB_SID.tip $TB_HOME/config
+  $ cp ~/tibero6_yyyymmdd/client/config/tbdsn.tbr $TB_HOME/client/config
+  $ cp ~/tibero6_yyyymmdd/client/config/*.cfg $TB_HOME/client/config
+  $ cp -R ~/tibero6_yyyymmdd/license  $TB_HOME
+
+6. Tibero Startup
+  $ tbcm -b          <== Using TAC
+  $ tbboot           <== Using TAS
+  $ tbboot           <== Common
+
+-----------------------------------------------------------------------------------
+<< Option, Selective >>
+** If "SYSTEM_VIEW | PKG | etc" has been modified, run it. Check with DQA Team before TiberoPatch. 
+
+7. Dictionary 
+  $ cd $TB_HOME/scripts
+  $ ./system.sh       
+
+8. Object Recompile
+  sql> exec UTL_RECOMP.RECOMP_SERIAL('TIBERO'); 

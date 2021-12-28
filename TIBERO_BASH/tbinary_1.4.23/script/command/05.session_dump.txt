@@ -1,0 +1,10 @@
+# callstack dump ddl
+alter system dump callstack <<session_id>>;
+
+select * from v$session; (sid = session_id)
+
+# callstack location
+cd $TB_HOME/instance/$TB_SID/
+
+# file
+tbsvr.callstack.xxxxx

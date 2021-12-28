@@ -1,0 +1,1123 @@
+#!/bin/sh
+#-------------------------------------------------------------------------------
+# @File name      : monitor
+# @Contents       : Tibero RDBMS Monitor Ver1.4.13
+# @Created by     : Mystery Sung
+# @Created date   : 2007.08.31
+# @Team           : DB Tech
+# @Modifed History
+#-------------------------------------------------------------------------------
+# 2007.08.31 Mystery Sung & Cris Created  (Ver1.1.0)
+# 2008.05.12 Mystery Sung Modified        (Ver1.1.1)
+# 2010.02.11 Mystery Sung Modified        (Ver1.2.0)
+# 2011.03.11 GC Lee Modified              (Ver1.2.1)
+# 2011.03.28 Gim Gwon Hwan Modified       (Ver1.2.2)
+# 2011.04.05 Gim Gwon Hwan Modified       (Ver1.2.2.1)
+# 2011.12.12 Gim Gwon Hwan Modified       (Ver1.2.2.2)
+# 2012.10.17 GC Lee Modified              (Ver1.2.2.3)
+# 2013.03.18 GC Lee Modified              (Ver1.2.3)
+# 2013.10.01 Gim Gwon Hwan Modified       (Ver1.3.0)
+# 2013.11.05 Gim Gwon Hwan Modified       (Ver1.3.1)
+# 2015.06.19 JJC                          (Ver1.4.0)
+# 2015.07.01 JJC                          (Ver1.4.1)
+# 2015.12.01 GC Lee                       (Ver1.4.3)
+# 2016.01.27 GC Lee                       (Ver1.4.4)
+# 2016.06.15 WJ Ahn                       (Ver1.4.6)
+# 2017.03.20 hanna Yeo                    (Ver1.4.8)
+# 2017.07.24 chiyeol Kim                  (Ver1.4.9)
+# 2018.08.18 jinyoung Kim                 (Ver1.4.10)
+# 2018.12.21 beomseok Kim                 (Ver1.4.11)
+# 2018.12.28 Gim Gwon Hwan Modified       (Ver1.4.12)
+# 2019.01.25 TaeHwan Kim                  (Ver1.4.13)
+# 2019.05.03 Junho Lee                    (Ver1.4.14)
+# 2019.06.09 Jinyoung Kim                 (Ver1.4.15)
+# 2019.10.04 Jaeyoung Moon                (Ver1.4.16)
+# 2019.12.44 Taehwan Kim                  (Ver1.4.17)
+# 2020.04.24 SiYeol Kim                   (Ver1.4.18)
+# 2020.05.21 Hwanhee Kim                  (Ver1.4.19)
+# 2021.03.18 Jooha Lee                    (Ver1.4.20)
+# 2021.07.27 Junsu Yoon                   (Ver1.4.21)
+# 2021.08.05 Jinyoung Kim                 (Ver1.4.22)
+#-------------------------------------------------------------------------------
+
+# Message Function -----------------------------
+print_done(){
+  echo "Press Enter Key to continue..."
+}
+
+
+print_version()
+{
+  echo "=============================="
+  echo " Tibero RDBMS Monitor Ver4.15 "
+  echo "=============================="
+}
+
+print_warning(){
+  echo "=================================================="
+  echo " (Disclaimer)                                     "
+  echo " These scripts come without warranty of any kind. "
+  echo " Use them at your own risk.                       "
+  echo "=================================================="
+}
+
+print_wellet(){
+  echo "========================="
+  echo " Using tbsql wallet file. "
+  echo "========================="
+}
+
+# SYS Password Input ----------------------------------
+input_pass(){
+  stty -echo
+  echo
+  if [ $OS = "Linux" ] ; then
+    echo -e "Enter SYS Password : \c"
+  elif [ $OS = "SunOS" ] ; then
+    if [ $OSVER = "5.10" ] ; then
+      echo "Enter SYS Password : \c"
+    else
+      echo -n "Enter SYS Password : "
+    fi
+  else
+    echo 'Enter SYS Password : \c'
+  fi
+  read PASS
+  stty echo
+}
+
+# Wallet File Check ---------------------------
+wallet_sys_chk() {
+if [ $OS = "SunOS" ] ; then
+    if [ -n -e "$ISQL_WALLET_PATH" -a "$ISQL_WALLET_PATH" ] ; then
+
+CONN_USER=`tbsql -s << EOF
+  set heading off;
+  set feedback off;
+  select username from user_users;
+EOF`
+
+    if [ "$CONN_USER" = "SYS" ] ; then
+      WALLET_CHK=1
+      print_wellet
+      echo
+      echo
+      print_done
+      read
+    else
+      input_pass
+    fi
+
+  else
+    input_pass
+  fi
+
+else
+  if [ -n "$ISQL_WALLET_PATH" -a -e "$ISQL_WALLET_PATH" ] ; then  
+
+CONN_USER=`tbsql -s << EOF
+  set heading off;
+  set feedback off;
+  select username from user_users;
+EOF`
+CONN_USER2=`printf "%s" $CONN_USER`
+
+    if [ "$CONN_USER2" = "SYS" ] ; then
+      WALLET_CHK=1
+      print_wellet
+      echo
+      echo
+      print_done
+      read
+    else
+      input_pass
+    fi
+
+  else
+    input_pass
+  fi
+fi
+}
+
+# Check type of backup set ----------------------------
+chk_backup_set_type(){
+	BS_TYP=`tbsql -s $USER/$PASS << EOF
+		set heading off;
+		set feedback off;
+		select count(*) from dba_tab_columns where table_name='_VT_BACKUP_SET' and column_name='BACKUP_TYPE';
+EOF`
+BS_TYP2=`printf "%s" $BS_TYP`
+echo $BS_TYP2
+}
+
+# Check Tibero Version -----------------------
+tibero_version_chk(){
+  if [ "$WALLET_CHK" = 1 ] ; then
+    TVER_CHK=`tbsql -s << EOF
+              set heading off;
+              set feedback off;
+              select aggr_concat(value,'') v from vt_version where name in ('PRODUCT_MAJOR', 'PRODUCT_MINOR', 'TB_MAJOR', 'TB_MINOR');
+EOF`
+  else
+    TVER_CHK=`tbsql -s $USER/$PASS << EOF
+              set heading off;
+              set feedback off;
+              select aggr_concat(value,'') v from vt_version where name in ('PRODUCT_MAJOR', 'PRODUCT_MINOR', 'TB_MAJOR', 'TB_MINOR');
+EOF`
+  fi
+  #echo "["$TVER_CHK"]"
+  #echo `expr substr $TVER_CHK 1 1`
+  #read tm
+
+if [ $OS = "SunOS" ] ; then
+  if [ `echo $TVER_CHK | cut -c 1-1` -le 5  ] ; then
+    echo 'tibero5'
+    echo 'column sql_id format 999999999999999' > $MONITOR/sql/sqlid_format.sql
+  else
+    echo 'tibero6'
+    echo 'column sql_id format a25' > $MONITOR/sql/sqlid_format.sql
+  fi
+  
+  echo
+  
+else
+  if [ `expr substr $TVER_CHK 1 1` -le 5  ] ; then
+    #echo 'tibero5'
+    echo 'column sql_id format 999999999999999' > $MONITOR/sql/sqlid_format.sql
+  else
+    #echo 'tibero6'
+    echo 'column sql_id format a25' > $MONITOR/sql/sqlid_format.sql
+  fi
+
+  echo
+fi
+
+}
+
+
+# SQL Run Function ----------------------------
+run_sql(){
+  if [ "$WALLET_CHK" = 1 ] ; then
+    tbsql -s @$MONITOR/sql/$1
+  else
+    tbsql -s $USER/$PASS @$MONITOR/sql/$1
+  fi
+  echo
+}
+
+# SQL Run Function(Version) -------------------
+run_sql_version(){
+  #echo "OS : " $OS
+
+  dyn_sql_file=`echo $1"."$TVER_CHK | sed 's/ //g'|awk -F. '{printf "%s_%s.%s", $1,$3,$2}'`
+
+  #echo $dyn_sql_file
+  #read tm
+
+if [ $OS = "SunOS" ] ; then
+    if [ -n -e $MONITOR/sql/$dyn_sql_file  ] ; then
+      echo
+    else
+      #echo "file not exist"
+      dyn_sql_file=$1
+    fi
+
+else
+
+  # file exist check
+  if [ -e $MONITOR/sql/$dyn_sql_file  ] ; then
+    echo
+  else
+    #echo "file not exist"
+    dyn_sql_file=$1
+  fi
+fi
+
+  echo "SQL File : " $dyn_sql_file
+  if [ "$WALLET_CHK" = 1 ] ; then
+    tbsql -s @$MONITOR/sql/$dyn_sql_file
+  else
+    tbsql -s $USER/$PASS @$MONITOR/sql/$dyn_sql_file
+  fi
+  echo
+
+
+}
+
+# Start monitor shell --------------------------
+# Shell Check ----------------------------------
+if [ $# -ne 0 ] ;  then
+  echo
+  echo " Tibero Monitor Shell"
+  echo " ---------------------"
+  echo " Usage : $0 "
+  echo " "
+  echo
+  exit
+fi
+
+# Configuration --------------------------------
+if [ -n "$TBINARY_PATH" ] ; then
+  MONITOR=$TBINARY_PATH/monitor; export MONITOR
+else
+  MONITOR=$HOME/tbinary/monitor; export MONITOR
+fi
+USER=sys; export USER
+PASS=tibero; export PASS
+WALLET_CHK=0; export WALLET_CHK
+TM_RUN_CHK=1; export TM_RUN_CHK
+OS=`uname -s`; export OS
+OSVER=`uname -r`; export OSVER
+TVER_CHK=5; export TVER_CHK
+
+# Message Printing -----------------------------
+clear
+print_version
+print_warning
+
+# Wallet File Check -----------------------------
+wallet_sys_chk
+tibero_version_chk
+
+#-----------------------------------------------
+
+# Backup Set type check
+chk_backup_set_type
+
+while true
+do
+clear
+print_version
+echo "  Tibero Version :"$TVER_CHK "(SQL_ID_FORMAT: "`cat $MONITOR/sql/sqlid_format.sql`")"
+echo " -----------------------------------------------------------------------------------"
+echo "  1.GENERAL                               |  2.SHARED MEMORY                        "
+echo " ---------------------------------------- + ----------------------------------------"
+echo "  11 - Instance/Database Info             |  21 - Database Buffer Hit Ratio         "
+echo "  12 - Parameter Info                     |  22 - Shared Cache    Hit Ratio         "
+echo "  13 - Tibero Memory Info                 |  23 - Spinlock(Latch) Hit Ratio         "
+echo "  14 - Backup Status                      |                                         "
+echo "  15 - Backup Status (RMGR Backup Set)    |                                         "
+echo " -----------------------------------------------------------------------------------"
+echo "  3.SESSION                               |  4.WAIT EVENT/LOCK                      "
+echo " ---------------------------------------- + ----------------------------------------"
+echo "  31 - Current Session Info               |  41 - Current Lock Info                 "
+echo "  32 - Current Running Session Info       |  42 - Hierarchical Lock Info            "
+echo "  33 - Current Running Session Wait Info  |  43 - Hierarchical Lock Info(TAC)       "
+echo "  34 - Running Session SQL Info           |  44 - System Event                      "
+echo "  35 - Current Transaction                |  45 - Session Event                     "
+echo "  36 - Open Cursor                        |  46 - Session Wait                      "
+echo "  37 - Current Session(TAC)               |  47 - Sysstat                           "
+echo "  38 - Current Running Session(TAC)       |  48 - Jcntstat                          "
+echo "  39 - Current Running Session Wait(TAC)  |  49 - Redo Nowait Info                  "
+echo " -----------------------------------------------------------------------------------"
+echo "  5.SPACE                                 |  6.I/O                                  "
+echo " ---------------------------------------- + ----------------------------------------"
+echo "  51 - Database File Info                 |  61 - File I/O Info                     "
+echo "  52 - Tablespace Usage                   |  62 - Session I/O Info                  "
+echo "  53 - Undo Segment Usage                 |  63 - Archivelog Count                  "
+echo "  54 - Temp Segment Usage                 |                                         "
+echo "  55 - Diskspace/ASFile Info(TAS)         |                                         "
+echo " -----------------------------------------------------------------------------------"
+echo "  7.OBJECT                                |  8.SQL                                  "
+echo " ---------------------------------------- + ----------------------------------------"
+echo "  71 - Schema Object Count                |  81 - SQL Plan(Input SQL_ID)            "
+echo "  72 - Object Invalid Count               |  82 - Top SQL                           "
+echo "  73 - Object Invalid Object              |  83 - Check Static Query Pattern        "
+echo "  74 - Segment Size(Top 50)               |  84 - Check Plan Change(APM)            "
+echo "                                          |  85 - Check Plan Change - Range(APM)    "
+echo "                                          |  86 - SQL Plan(APM)                     "
+echo " -----------------------------------------------------------------------------------"
+echo "  9.APM (Use Carefully)                   |  10.TAS                                 "
+echo " ---------------------------------------- + ----------------------------------------"
+echo "  91 - Create APM Snapshot                |  101 - Diskspace Status                 "
+echo "  92 - Create APM Snapshot For TAC        |  102 - Disk Status                      "
+echo "  93 - Show APM Snapshot                  |  103 - TAS Operation Status             "
+echo "  94 - Create APM Report                  |                                         "
+echo " -----------------------------------------------------------------------------------"
+echo "  0.OTHER                                                                           "
+echo " -----------------------------------------------------------------------------------"
+echo "  M - Auto Refresh Monitoring                I - Setting SQL_ID Format              "
+echo "  S - Save To File                           X or Q- EXIT                           "
+echo "  CH - Security Check                                                               "
+echo " -----------------------------------------------------------------------------------"
+echo
+if [ $OS = "Linux" ] ; then
+  echo -e " Choose the Number or Command : \c "
+elif [ $OS = "SunOS" ] ; then
+  if [ $OSVER = "5.10" ] ; then
+    echo ' Choose the Number or Command : \c '
+  else
+    echo -n " Choose the Number or Command : "
+  fi
+else
+  echo ' Choose the Number or Command : \c '
+fi
+read i_number
+case $i_number in
+
+# 1.GENERAL ---------------------------------------
+
+11)
+clear
+echo "============================"
+echo " Tibero Instance Infomation "
+echo "============================"
+run_sql 1_instance.sql
+print_done
+read tm
+;;
+
+12)
+clear
+echo "======================"
+echo " Parameter Infomation "
+echo "======================"
+run_sql 1_parameter.sql
+print_done
+read tm
+;;
+
+13)
+clear
+echo "====================="
+echo " TSM(SGA) Infomation "
+echo "====================="
+run_sql 1_sga.sql
+echo "==============================="
+echo " Tibero Used Memory Infomation "
+echo "==============================="
+run_sql 1_used_memory.sql
+print_done
+read tm
+;;
+
+14)
+clear
+echo "==============="
+echo " Backup Status "
+echo "==============="
+run_sql 1_backup_status.sql
+print_done
+read tm
+;;
+
+15)
+clear
+echo "========================"
+echo " RMGR Backup Set Status "
+echo "========================"
+if [ $BS_TYP2 = "1" ] ; then
+	run_sql 1_rmgr_backup_status_withtype.sql
+else
+	run_sql 1_rmgr_backup_status.sql
+fi
+print_done
+read tm
+;;
+
+
+# 2.SHARED_MEMORY ---------------------------------
+
+21)
+clear
+echo "==========================="
+echo " Database Buffer Hit Ratio "
+echo "==========================="
+run_sql 2_bchr.sql
+print_done
+read tm
+;;
+
+22)
+clear
+echo "========================"
+echo " Shared Cache Hit Ratio "
+echo "========================"
+run_sql 2_sharedcache.sql
+print_done
+read tm
+;;
+
+23)
+clear
+echo "==========================="
+echo " Spinlock(Latch) Hit Ratio "
+echo "==========================="
+run_sql 2_latch.sql
+print_done
+read tm
+;;
+
+
+# 3.SESSION ---------------------------------------
+
+31)
+clear
+echo "======================"
+echo " Current Session Info "
+echo "======================"
+run_sql_version 3_current_session.sql
+print_done
+read tm
+;;
+
+32)
+clear
+echo "========================="
+echo " Current Running Session "
+echo "========================="
+run_sql_version 3_run_session.sql
+print_done
+read tm
+;;
+
+33)
+clear
+echo "==========================="
+echo " Current Session Wait Info "
+echo "==========================="
+run_sql_version 3_run_session_wait.sql
+print_done
+read tm
+;;
+
+34)
+clear
+echo "======================"
+echo " Running Session(SQL) "
+echo "======================"
+run_sql_version 3_running_sql.sql
+print_done
+read tm
+;;
+
+35)
+clear
+echo "====================="
+echo " Current Transaction "
+echo "====================="
+run_sql_version 3_current_transaction.sql
+print_done
+read tm
+;;
+
+36)
+clear
+echo "===================="
+echo " Open Cursor Status "
+echo "===================="
+run_sql 3_open_cursor.sql
+print_done
+read tm
+;;
+
+37)
+clear
+echo "========================="
+echo " Current Session For TAC "
+echo "========================="
+run_sql_version 3_current_session_tac.sql
+print_done
+read tm 
+;;
+
+38)
+clear
+echo "================================="
+echo " Current Running Session For TAC "
+echo "================================="
+run_sql_version 3_run_session_tac.sql 
+print_done
+read tm 
+;;
+
+39)
+clear
+echo "==============================="
+echo "  Current Session Wait For TAC "
+echo "==============================="
+run_sql_version 3_run_session_wait_tac.sql 
+print_done
+read tm 
+;;
+
+# 4.WAIT EVENT/LOCK--------------------------------
+
+41)
+clear
+echo
+echo "======================="
+echo " Blocking/Waiting Lock "
+echo "======================="
+run_sql_version 4_blockinglock.sql
+echo "======================"
+echo " DML Lock Information "
+echo "======================"
+run_sql_version 4_lockinfo.sql
+echo "============================================"
+echo " Object Lock Information(Library cache Lock)       "
+echo "============================================"
+run_sql_version 4_lockobj.sql
+print_done
+read tm
+;;
+
+42)
+clear
+echo "========================"
+echo " Hierarchical Lock Info "
+echo "========================"
+run_sql_version 4_hierarchical_lock.sql
+print_done
+read tm
+;;
+
+43)
+clear
+echo "============================="
+echo " Hierarchical Lock Info(TAC) "
+echo "============================="
+run_sql_version 4_hierarchical_lock_tac.sql
+print_done
+read tm
+;;
+
+44)
+clear
+echo "=============="
+echo " System Event "
+echo "=============="
+run_sql 4_system_event.sql
+print_done
+read tm
+;;
+
+45)
+clear
+sh $MONITOR/sql/4_session_event.sh
+clear
+echo "==============="
+echo " Session Event "
+echo "==============="
+run_sql 4_session_event.sql
+print_done
+read tm
+;;
+
+46)
+clear
+echo "=============="
+echo " Session Wait "
+echo "=============="
+run_sql_version 4_session_wait.sql
+print_done
+read tm
+;;
+
+47)
+clear
+echo "========="
+echo " Sysstat "
+echo "========="
+run_sql 4_sysstat.sql
+print_done
+read tm
+;;
+
+48)
+clear
+echo "==========="
+echo " Jcnt Info "
+echo "==========="
+run_sql 4_jcnt.sql
+print_done
+read tm
+;;
+
+49)
+clear
+echo "============="
+echo " Redo Nowait "
+echo "============="
+run_sql 4_redonowait.sql
+print_done
+read tm
+;;
+
+
+# 5.SPACE -----------------------------------------
+
+51)
+clear
+echo "========================"
+echo " Controlfile Infomation "
+echo "========================"
+run_sql 5_control.sql
+echo "===================="
+echo " Logfile Infomation "
+echo "===================="
+run_sql 5_logfile.sql
+echo "====================="
+echo " Datafile Infomation "
+echo "====================="
+run_sql 5_datafile.sql
+print_done
+read tm
+;;
+
+52)
+clear
+echo "======================="
+echo " Tablespace Infomation "
+echo "======================="
+run_sql 5_tbs.sql
+echo "============================"
+echo " Temp Tablespace Infomation "
+echo "============================"
+run_sql 5_temp_tbs.sql
+print_done
+read tm
+;;
+
+53)
+clear
+echo "=========================="
+echo " Current Undo Information "
+echo "=========================="
+run_sql 5_undo.sql
+echo "================="
+echo " Undo Usage Type "
+echo "================="
+run_sql_version 5_undo_usage_type.sql
+print_done
+read tm
+;;
+
+54)
+clear
+echo "===================="
+echo " Temp Segment Usage "
+echo "===================="
+run_sql 5_tempseg_usage.sql
+echo "===================="
+echo " Temp Total Usage   "
+echo "===================="
+run_sql 5_tempseg_tot_usage.sql
+print_done
+read tm
+;;
+
+55)
+clear
+run_sql 5_Diskspace.sql
+print_done
+read tm
+;;
+
+# 6.I/O -------------------------------------------
+
+61)
+clear
+echo "======================"
+echo " File I/O Information "
+echo "======================"
+run_sql 6_fileio.sql
+print_done
+read tm
+;;
+
+62)
+clear
+echo "========================="
+echo " Session I/O Information "
+echo "========================="
+run_sql 6_session_io.sql
+print_done
+read tm
+;;
+
+63)
+clear
+echo "====================================="
+echo " Archive Log Count (Archivelog Only) "
+echo "====================================="
+run_sql 6_loghistory.sql
+print_done
+read tm
+;;
+
+
+# 7.OBJECT ----------------------------------------
+
+71)
+clear
+echo "====================="
+echo " Schema Object Count "
+echo "====================="
+run_sql 7_object_count.sql
+print_done
+read tm
+;;
+
+72)
+clear
+echo "======================"
+echo " Object Invalid Count "
+echo "======================"
+run_sql 7_invalid_count.sql
+print_done
+read tm
+;;
+
+73)
+clear
+echo "====================="
+echo " Object Invalid List "
+echo "====================="
+run_sql 7_invalid_object.sql
+print_done
+read tm
+;;
+
+74)
+clear
+echo "======================="
+echo " Segment Size(Top 50)  "
+echo "======================="
+run_sql_version 7_segment_size.sql
+print_done
+read tm
+;;
+
+
+# 8.SQL -------------------------------------------
+
+81)
+clear
+echo "=========="
+echo " SQL PLAN "
+echo "=========="
+run_sql_version 8_sql_plan.sql
+print_done
+read tm
+;;
+
+82)
+clear
+echo "========="
+echo " TOP SQL "
+echo "========="
+run_sql_version 8_topquery.sql
+print_done
+read tm
+;;
+
+83)
+clear
+echo "============================"
+echo " Check Static Query Pattern "
+echo "============================"
+run_sql_version 8_check_static_query.sql
+print_done
+read tm
+;;
+
+84)
+clear
+echo "============================"
+echo " Check Plan Change (APM) "
+echo "============================"
+run_sql_version 8_check_plan_change_apm.sql
+print_done
+read tm
+;;
+
+85)
+clear
+echo "============================"
+echo " Check Plan Change - RANGE (APM) "
+echo "============================"
+run_sql_version 8_check_plan_change_range_apm.sql
+print_done
+read tm
+;;
+
+86)
+clear
+echo "============================"
+echo " SQL PLAN (APM) "
+echo "============================"
+run_sql_version 8_sql_plan_apm.sql
+print_done
+read tm
+;;
+
+
+# 9.APM -------------------------------------------
+
+91)
+clear
+echo "====================="
+echo " APM Snapshot Create "
+echo "====================="
+if [ $OS = "Linux" ] ; then
+  echo -e "Create APM Snapshot?(Y/N): \c"
+elif [ $OS = "SunOS" ] ; then
+  if [ $OSVER = "5.10" ] ; then
+    echo "Create APM Snapshot?(Y/N): \c"
+  else
+    echo -n "Create APM Snapshot?(Y/N): "
+  fi
+else
+  echo 'Create APM Snapshot?(Y/N): \c'
+fi
+read cre_apm_snap
+if [ "$cre_apm_snap" = "Y" -o "$cre_apm_snap" = "y" ] ; then
+  run_sql 9_apmcreate.sql
+  print_done
+  read tm
+fi
+;;
+
+92)
+clear
+echo "============================="
+echo " APM Snapshot Create For TAC "
+echo "============================="
+if [ $OS = "Linux" ] ; then
+  echo -e "Create APM Snapshot?(Y/N): \c"
+elif [ $OS = "SunOS" ] ; then
+  if [ $OSVER = "5.10" ] ; then
+    echo "Create APM Snapshot?(Y/N): \c"
+  else
+    echo -n "Create APM Snapshot?(Y/N): "
+  fi
+else
+  echo 'Create APM Snapshot?(Y/N): \c'
+fi
+read cre_apm_snap
+if [ "$cre_apm_snap" = "Y" -o "$cre_apm_snap" = "y" ] ; then
+  run_sql 9_apmcreate_tac.sql
+  print_done
+  read tm
+fi
+;;
+
+
+93)
+clear
+echo "==================="
+echo " APM Shapshot List "
+echo "==================="
+run_sql_version 9_apmshow.sql
+print_done
+read tm
+;;
+
+94)
+clear
+echo "==================="
+echo " APM Report Create "
+echo "==================="
+run_sql_version 9_apmshow.sql
+if [ $OS = "Linux" ] ; then
+  echo -e "Create APM Report?(Y/N): \c"
+elif [ $OS = "SunOS" ] ; then
+  if [ $OSVER = "5.10" ] ; then
+    echo "Create APM Snapshot?(Y/N): \c"
+  else
+    echo -n "Create APM Snapshot?(Y/N): "
+  fi
+else
+  echo 'Create APM Report?(Y/N): \c'
+fi
+read cre_apm_snap
+if [ "$cre_apm_snap" = "Y" -o "$cre_apm_snap" = "y" ] ; then
+  run_sql_version 9_apmrpt.sql
+  find $TB_HOME/instance/$TB_SID -mtime -1  -name "*_report.*"  | sort -d | tail -1
+  echo
+  print_done
+  read tm
+fi
+;;
+
+
+# 10.TAS ------------------------------------------
+
+101)
+clear
+echo "======================="
+echo " TAS Diskspace Status  "
+echo "======================="
+run_sql 10_diskspace_status.sql
+print_done
+read tm
+;;
+
+102)
+clear
+echo "==================="
+echo " TAS Disk Status   "
+echo "==================="
+run_sql 10_tasdisk_status.sql
+print_done
+read tm
+;;
+
+103)
+clear
+echo "======================"
+echo " TAS Operation Status "
+echo "======================"
+run_sql 10_tasoperation_status.sql
+print_done
+read tm
+;;
+
+
+# 0.OTHER -----------------------------------------
+
+m|M)
+clear
+echo "================================"
+echo " Tibero Auto Refresh Monitoring "
+echo "================================"
+
+sh $MONITOR/tam.run
+
+if [ $OS = "Linux" ] ; then
+  echo -e "Option : \c"
+elif [ $OS = "SunOS" ] ; then
+  if [ $OSVER = "5.10" ] ; then
+    echo "Option : \c"
+  else
+    echo -n "Option : "
+  fi
+else
+  echo 'Option : \c'
+fi
+read tam_option
+
+if [ $OS = "Linux" ] ; then
+  echo -e "Interval : \c"
+elif [ $OS = "SunOS" ] ; then
+  if [ $OSVER = "5.10" ] ; then
+    echo "Interval : \c"
+  else
+    echo -n "Interval : "
+  fi
+else
+  echo 'Interval : \c'
+fi
+read tam_int
+$MONITOR/tam.run $tam_option $tam_int
+print_done
+read tm
+;;
+
+s|S)
+clear
+echo "=========================="
+echo " Tibero Monitoring Report "
+echo "=========================="
+if [ $OS = "Linux" ] ; then
+  echo -e "Create Monitoring Report?(Y/N): \c"
+elif [ $OS = "SunOS" ] ; then
+  if [ $OSVER = "5.10" ] ; then
+    echo "Create Monitoring Report?(Y/N): \c"
+  else
+    echo -n "Create Monitoring Report?(Y/N): "
+  fi
+else
+  echo 'Create Monitoring Report?(Y/N): \c'
+fi
+read cre_mon_rpt
+if [ "$cre_mon_rpt" = "Y" -o "$cre_mon_rpt" = "y" ] ; then
+  filename=monitor_`date +%y%m%d%H.log`
+  $MONITOR/sql/0_save_file.sh
+  run_sql 0_save_file.sql >> $MONITOR/log/$filename
+
+  echo
+  echo "Monitoring File Saved!"
+  echo "filename : $MONITOR/log/$filename"
+  echo
+  print_done
+  read tm
+fi
+;;
+
+i|I)
+clear
+echo "=========================="
+echo " Setting SQL_ID format    "
+echo "=========================="
+echo "Current format : " `cat $MONITOR/sql/sqlid_format.sql`
+echo "ex) 99999999999999999999 or a25"
+echo
+if [ $OS = "Linux" ] ; then
+  echo -e "Input SQL_ID FORMAT : \c"
+elif [ $OS = "SunOS" ] ; then
+  if [ $OSVER = "5.10" ] ; then
+    echo "Input SQL_ID FORMAT : \c"
+  else
+    echo -n "Input SQL_ID FORMAT : "
+  fi
+else
+  echo 'Input SQL_ID FORMAT : \c'
+fi
+read sql_id_format
+
+echo 
+echo "### Setting Format ###"
+echo "column sql_id format "$sql_id_format
+
+echo
+if [ $OS = "Linux" ] ; then
+  echo -e "Are you correct(Y/N): \c"
+elif [ $OS = "SunOS" ] ; then
+  if [ $OSVER = "5.10" ] ; then
+    echo "Are you correct(Y/N): \c"
+  else
+    echo -n "Are you correct(Y/N): "
+  fi
+else
+  echo 'Are you correct(Y/N): \c'
+fi
+read sql_id_yn
+
+if [ "$sql_id_yn" = "Y" -o "$sql_id_yn" = "y" ] ; then
+  echo "column sql_id format "$sql_id_format > $MONITOR/sql/sqlid_format.sql
+
+  echo
+  print_done
+  read tm
+fi
+;;
+
+ch|CH)
+clear
+cd $TBINARY_PATH/monitor;chk -
+#sh ~/tbinary/monitor/chk
+#print_done
+;;
+
+x|X|q|Q)
+clear
+echo "Good bye..."
+echo
+exit
+;;
+
+
+*)
+echo
+echo
+echo
+echo "You choose wrong number."
+echo "Try Again.."
+sleep 1
+;;
+
+esac
+
+done

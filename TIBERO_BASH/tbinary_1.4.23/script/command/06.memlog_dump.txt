@@ -1,0 +1,9 @@
+# memlog dump ddl
+alter system dump memlog <<sid>>;
+
+# location
+cd $TB_HOME/instance/$TB_SID/log/memlog/
+
+# file
+sql_memlog.xxxxxxx
+

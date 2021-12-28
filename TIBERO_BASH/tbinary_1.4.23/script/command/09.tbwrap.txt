@@ -1,0 +1,21 @@
+tbwrap iname=<source> oname=<target>
+
+ex>
+$ tbwrap iname=no_wrap.sql oname=wrap.sql
+$ tbsql tibero/tmax
+SQL> @wrap.sql
+SQL> select multiply(20,2) from dual;
+SQL> select * from user_source where name = 'MULTIPLY';
+
+
+--cat no_wrap.sql 
+create or replace function multiply (a number, b number)
+return number
+is
+    x number;
+begin
+    x := a*b;
+    return x;
+end;
+/
+
