@@ -7,4 +7,5 @@ $ sh smchk.sh recently_days > filename
 
 ## Example
 # Recently 35 days checking
+# default recently_days = 30
 $ sh smchk.sh 35 > 20211211.log

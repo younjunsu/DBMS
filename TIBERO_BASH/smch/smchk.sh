@@ -10,6 +10,22 @@
 # xxxx.xx.xx xxxxx                 (Verxx)
 # ------------------------------------------------------------------------------
 
+
+## Default Configuration
+RECENT_DAYS=$1
+if [ $RECENT_DAYS -z ]
+then
+    RECENT_DAYS=30
+fi
+
+SMDB_LOG_PATH=`cat $TB_HOME/config/$TB_SID.tip |grep "LOG_DEFAULT_DEST"`
+if [ $SMDB_LOG_PATH -z ]
+then
+    SMDB_LOG_PATH="tibero6/instance"
+fi
+
+##
+
     printf "#%-50s#\n" "##################################################"
     printf "#%-50s#\n" " SYSMASTER7"
     printf "#%-50s#\n" "##################################################"
@@ -169,7 +185,7 @@ STEP=7
     echo "######## $STEP.1 SMDB Log ########"
     printf "%-20s%-100s\n" "SMDB" "LOG FILE"
     echo "-----------------------------------"
-    SMDB_LOGFILES=(`find tibero6/instance -mtime -30 -name 'sys.log' -o -name '*.out'`)
+    SMDB_LOGFILES=(`find $SMDB_LOG_PATH -mtime -$RECENT_DAYS -name 'sys.log' -o -name '*.out'`)
     for SMDB_LOGFILE in ${SMDB_LOGFILES[@]}
     do
         printf "%-20s%-100s\n" "SMDB" "$SMDB_LOGFILE"
@@ -179,7 +195,7 @@ STEP=7
     echo "######## $STEP.2 JEUS Log ########"
     printf "%-20s%-100s\n" "JEUS" "LOG FILE"
     echo "-----------------------------------"
-    JEUS_LOGFILES=(`find jeus8 -mtime -30 -name '*.log' -o -name '*.out'`)
+    JEUS_LOGFILES=(`find jeus8 -mtime -$RECENT_DAYS -name '*.log' -o -name '*.out'`)
     for JEUS_LOGFILE in ${JEUS_LOGFILES[@]}
     do
         printf "%-20s%-100s\n" "JUES" "$JEUS_LOGFILE"
@@ -189,7 +205,7 @@ STEP=7
     echo "######## $STEP.3 HyperLoader Log ########"
     printf "%-20s%-100s\n" "HyperLoader" "LOG FILE"
     echo "-----------------------------------"
-    HYPER_LOGFILES=(`find hyperLoader -mtime -30 -name '*.log' -o -name '*.out'`)
+    HYPER_LOGFILES=(`find hyperLoader -mtime -$RECENT_DAYS -name '*.log' -o -name '*.out'`)
     for HYPER_LOGFILE in ${HYPER_LOGFILES[@]}
     do
         printf "%-20s%-100s\n" "HyperLoader" "$HYPER_LOGFILE"
@@ -199,7 +215,7 @@ STEP=7
     echo "######## $STEP.4 ProObject Log ########"
     printf "%-20s%-100s\n" "ProObject" "LOG FILE"
     echo "-----------------------------------"
-    PROOB_LOGFILES=(`find proobject7 -mtime -30 -name '*.log' -o -name '*.out'`)
+    PROOB_LOGFILES=(`find proobject7 -mtime -$RECENT_DAYS -name '*.log' -o -name '*.out'`)
     for PROOB_LOGFILE in ${PROOB_LOGFILES[@]}
     do
         printf "%-20s%-100s\n" "ProObject" "$PROOB_LOGFILE"
