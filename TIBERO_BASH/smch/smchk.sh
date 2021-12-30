@@ -10,6 +10,11 @@
 # xxxx.xx.xx xxxxx                 (Verxx)
 # ------------------------------------------------------------------------------
 
+printf "#%-50s#\n" "##################################################"
+printf "#%-50s#\n" " SYSMASTER7"
+printf "#%-50s#\n" "##################################################"
+echo
+echo
 ## ENV CHECK
 STEP="ENV"
     if [ $SYSMASTER_HOME -z ] || [ $TB_HOME -z ] || [ $TB_SID -z ] || [ $JEUS_HOME -z ] || [$HL_HOME -z ] || [ $PROOBJECT_HOME -z]
@@ -24,7 +29,7 @@ STEP="ENV"
         printf "%-20s%-100s\n" "PROOBJECT_HOME" "$PROOBJECT_HOME"
         exit
     fi
-    echo "######## $STEP CHECK ########"
+    echo "######## $STEP Check ########"
     printf "%-20s%-100s\n" "ENV NAME" "VALUE"
     echo "---------------------------------"
     printf "%-20s%-100s\n" "SYSMASTER_HOME" "$SYSMASTER_HOME"
@@ -35,22 +40,14 @@ STEP="ENV"
     printf "%-20s%-100s\n" "PROOBJECT_HOME" "$PROOBJECT_HOME"
     echo
     echo "######## DIRECTORY CREATION TIME ########"
-    echo "######## SYSMASTER_HOME ########"
-    stat $SYSMASTER_HOME |grep Access
-    echo
-    echo "######## TB_HOME ########"
-    stat $TB_HOME |grep Access
-    echo
-    echo "######## JEUS_HOME ########"
-    stat $JEUS_HOME |grep Access
-    echo
-    echo "######## HL_HOME ########"
-    stat $HL_HOME |grep Access
-    echo
-    echo "######## PROOBJECT_HOME ########"
-    stat $PROOBJECT_HOME |grep Access
+    printf "%-20s%-100s" "SYSMASTER_HOME" "`stat $SYSMASTER_HOME |grep Access`"
+    printf "%-20s%-100s" "TB_HOME" "`stat $TB_HOME |grep Access`"
+    printf "%-20s%-100s" "JEUS_HOME" "`stat $JEUS_HOME |grep Access`"
+    printf "%-20s%-100s" "HL_HOME" "`stat $HL_HOME |grep Access`"
+    printf "%-20s%-100s" "PROOBJECT_HOME" "`stat $PROOBJECT_HOME |grep Access`"
     echo
     echo
+
 STEP=1
     echo "######## $STEP. SYSTEM RESOURCE ########"
     echo "######## $STEP.1 Memory ########"
@@ -62,6 +59,7 @@ STEP=1
     echo "CPU = "$SYSTEM_CPU", CORE ="$SYSTEM_CORE
     echo
     echo
+
 STEP=2
     echo "######## $STEP. Started Time ########"
     echo "Current DateTime "`date +%Y-%m-%d" "%T`
@@ -105,12 +103,14 @@ STEP=2
     done
     echo
     echo
+
 STEP=3
-    echo "######## $STEP. Port check ########"
+    echo "######## $STEP. Port Check ########"
     echo "Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    "
     netstat -nlp |grep tcp 
     echo
     echo
+
 STEP=4
     echo "######## $STEP. Space usage ########"
     echo "######## $STEP.1 Total ########"
@@ -138,8 +138,9 @@ EOF
     SMDB_TABLESPACE |grep -vE "tbSQL|Corporation|Connected|^$|Disconnected"
     echo
     echo
+
 STEP=5
-    echo "######## $STEP. CPU CHECK ########"
+    echo "######## $STEP. CPU Check ########"
     echo "######## $STEP.1 vmstat ########"
     vmstat 1 5
     echo
@@ -148,8 +149,9 @@ STEP=5
     ps -aux  |grep -v "%CPU"|sort -k 3 -r |head -n 10
     echo
     echo
+
 STEP=6
-    echo "######## $STEP. SMDB CHECK ########"
+    echo "######## $STEP. SMDB Check ########"
     function SMDB_REGIMON(){
      tbsql sys/tibero @sql/smdb_regimon.sql  << EOF
     quit
@@ -158,11 +160,12 @@ EOF
     SMDB_REGIMON |grep -vE "tbSQL|Corporation|Connected|^$|Disconnected"
     echo
     echo
+
 STEP=7
-    echo "######## $STEP. LOG CHECK ########"
+    echo "######## $STEP. Log Check ########"
     cd $SYSMASTER_HOME
     # SMDB
-    echo "######## $STEP.1 SMDB LOG ########"
+    echo "######## $STEP.1 SMDB Log ########"
     printf "%-20s%-100s\n" "SMDB" "LOG FILE"
     echo "-----------------------------------"
     SMDB_LOGFILES=(`find tibero6/instance -mtime -30 -name 'sys.log' -o -name '*.out'`)
@@ -172,7 +175,7 @@ STEP=7
     done
     echo
     # JEUS
-    echo "######## $STEP.2 JEUS LOG ########"
+    echo "######## $STEP.2 JEUS Log ########"
     printf "%-20s%-100s\n" "JEUS" "LOG FILE"
     echo "-----------------------------------"
     JEUS_LOGFILES=(`find jeus8 -mtime -30 -name '*.log' -o -name '*.out'`)
@@ -182,7 +185,7 @@ STEP=7
     done
     echo
     # HyperLoader
-    echo "######## $STEP.3 HyperLoader LOG ########"
+    echo "######## $STEP.3 HyperLoader Log ########"
     printf "%-20s%-100s\n" "HyperLoader" "LOG FILE"
     echo "-----------------------------------"
     HYPER_LOGFILES=(`find hyperLoader -mtime -30 -name '*.log' -o -name '*.out'`)
@@ -192,7 +195,7 @@ STEP=7
     done
     echo
     # ProObject
-    echo "######## $STEP.4 ProObject LOG ########"
+    echo "######## $STEP.4 ProObject Log ########"
     printf "%-20s%-100s\n" "ProObject" "LOG FILE"
     echo "-----------------------------------"
     PROOB_LOGFILES=(`find proobject7 -mtime -30 -name '*.log' -o -name '*.out'`)
