@@ -25,29 +25,31 @@ then
 fi
 
 ##
-
     printf "#%-50s#\n" "##################################################"
     printf "#%-50s#\n" " SYSMASTER7"
     printf "#%-50s#\n" "##################################################"
-    echo
+
     echo
 
 ## ENV CHECK
 STEP="ENV"
     if [ $SYSMASTER_HOME -z ] || [ $TB_HOME -z ] || [ $TB_SID -z ] || [ $JEUS_HOME -z ] || [$HL_HOME -z ] || [ $PROOBJECT_HOME -z]
     then
-        printf "%-20s%-100s\n" "ENV NAME" "VALUE"
+        echo "[ERROR] Check environment variables"
+        echo
+        printf "%-20s%-100s\n" "Home type" "Path"
         echo "---------------------------------"
-        printf "%-20s%-100s\n" "SYSMASTER_HOME" "$SYSMASTER_HOME"
-        printf "%-20s%-100s\n" "TB_HOME" "$TB_HOME"
-        printf "%-20s%-100s\n" "TB_SID" "$TB_SID"
-        printf "%-20s%-100s\n" "JEUS_HOME" "$JEUS_HOME"
-        printf "%-20s%-100s\n" "HL_HOME" "$HL_HOME"
-        printf "%-20s%-100s\n" "PROOBJECT_HOME" "$PROOBJECT_HOME"
+        printf "%-20s|%-100s\n" "SYSMASTER_HOME" "$SYSMASTER_HOME"
+        printf "%-20s|%-100s\n" "TB_HOME" "$TB_HOME"
+        printf "%-20s|%-100s\n" "TB_SID" "$TB_SID"
+        printf "%-20s|%-100s\n" "JEUS_HOME" "$JEUS_HOME"
+        printf "%-20s|%-100s\n" "HL_HOME" "$HL_HOME"
+        printf "%-20s|%-100s\n" "PROOBJECT_HOME" "$PROOBJECT_HOME"
+        echo "---------------------------------"
         exit
     fi
     echo "######## $STEP Check ########"
-    printf "%-20s%-100s\n" "ENV NAME" "VALUE"
+    printf "%-20s%-100s\n" "Home type" "Path"
     echo "---------------------------------"
     printf "%-20s%-100s\n" "SYSMASTER_HOME" "$SYSMASTER_HOME"
     printf "%-20s%-100s\n" "TB_HOME" "$TB_HOME"
@@ -56,17 +58,18 @@ STEP="ENV"
     printf "%-20s%-100s\n" "HL_HOME" "$HL_HOME"
     printf "%-20s%-100s\n" "PROOBJECT_HOME" "$PROOBJECT_HOME"
     echo
-    echo "######## DIRECTORY CREATION TIME ########"
-    printf "%-20s%-100s" "SYSMASTER_HOME" "`stat $SYSMASTER_HOME |grep Access`"
-    printf "%-20s%-100s" "TB_HOME" "`stat $TB_HOME |grep Access`"
-    printf "%-20s%-100s" "JEUS_HOME" "`stat $JEUS_HOME |grep Access`"
-    printf "%-20s%-100s" "HL_HOME" "`stat $HL_HOME |grep Access`"
-    printf "%-20s%-100s" "PROOBJECT_HOME" "`stat $PROOBJECT_HOME |grep Access`"
+    echo "######## Directory Creation Time ########"
+    printf "%-20s%-100s\n" "Home type" "Creation Time"
+    printf "%-20s%-100s\n" "SYSMASTER_HOME" "`stat $SYSMASTER_HOME |grep Access |grep -v Gid`"
+    printf "%-20s%-100s\n" "TB_HOME" "`stat $TB_HOME |grep Access |grep -v Gid`"
+    printf "%-20s%-100s\n" "JEUS_HOME" "`stat $JEUS_HOME |grep Access |grep -v Gid`"
+    printf "%-20s%-100s\n" "HL_HOME" "`stat $HL_HOME |grep Access |grep -v Gid`"
+    printf "%-20s%-100s\n" "PROOBJECT_HOME" "`stat $PROOBJECT_HOME |grep Access |grep -v Gid`"
     echo
     echo
 
 STEP=1
-    echo "######## $STEP. SYSTEM RESOURCE ########"
+    echo "######## $STEP. System resource ########"
     echo "######## $STEP.1 Memory ########"
     free -g
     echo
@@ -78,8 +81,8 @@ STEP=1
     echo
 
 STEP=2
-    echo "######## $STEP. Started Time ########"
-    echo "Current DateTime "`date +%Y-%m-%d" "%T`
+    echo "######## $STEP. Started time ########"
+    echo "Current dateTime "`date +%Y-%m-%d" "%T`
     printf "%-20s%-50s%-20s%-30s\n" "TYPE" "Prcess CMD" "PID" "START-TIME"
     echo "-------------------------------------------------------------------------------------------------------------"
     # SYSTEMD
@@ -122,15 +125,15 @@ STEP=2
     echo
 
 STEP=3
-    echo "######## $STEP. Port Check ########"
+    echo "######## $STEP. Port check ########"
     echo "Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    "
     netstat -nlp |grep tcp 
     echo
     echo
 
 STEP=4
-    echo "######## $STEP. DISK Space usage ########"
-    echo "######## $STEP.1 Total Size ########"
+    echo "######## $STEP. Disk space usage ########"
+    echo "######## $STEP.1 Total size ########"
     df -h
     echo
     echo "######## $STEP.2 Size on by type ########"
@@ -139,7 +142,7 @@ STEP=4
     JEUS_HOME_SIZE=(`df -h $JEUS_HOME|grep -v Mounted`)
     HL_HOME_SIZE=(`df -h $HL_HOME|grep -v Mounted`)
     PROOBJECT_HOME_SIZE=(`df -h $PROOBJECT_HOME|grep -v Mounted`)
-    printf "%-15s%-10s%-10s%-10s%-10s%-20s\n" "HOME TYPE" "Size" "Used" "Avail" "Use%" "Mounted on"
+    printf "%-15s%-10s%-10s%-10s%-10s%-20s\n" "Home type" "Size" "Used" "Avail" "Use%" "Mounted on"
     printf "%-15s%-10s%-10s%-10s%-10s%-20s\n" "SYSMASTER" "${SYSMASTER_HOME_SIZE[1]}" "${SYSMASTER_HOME_SIZE[2]}" "${SYSMASTER_HOME_SIZE[3]}" "${SYSMASTER_HOME_SIZE[4]}" "${SYSMASTER_HOME_SIZE[5]}"
     printf "%-15s%-10s%-10s%-10s%-10s%-20s\n" "SMDB" "${TB_HOME_SIZE[1]}" "${TB_HOME_SIZE[2]}" "${TB_HOME_SIZE[3]}" "${TB_HOME_SIZE[4]}" "${TB_HOME_SIZE[5]}"
     printf "%-15s%-10s%-10s%-10s%-10s%-20s\n" "JEUS" "${JEUS_HOME_SIZE[1]}" "${JEUS_HOME_SIZE[2]}" "${JEUS_HOME_SIZE[3]}" "${JEUS_HOME_SIZE[4]}" "${JEUS_HOME_SIZE[5]}"
@@ -179,43 +182,71 @@ EOF
     echo
 
 STEP=7
-    echo "######## $STEP. Log Check ########"
+    echo "######## $STEP. Log check ########"
     cd $SYSMASTER_HOME
+
     # SMDB
     echo "######## $STEP.1 SMDB Log ########"
     printf "%-20s%-100s\n" "SMDB" "LOG FILE"
     echo "-----------------------------------"
     SMDB_LOGFILES=(`find $SMDB_LOG_PATH -mtime -$RECENT_DAYS -name 'sys.log' -o -name '*.out'`)
+    
+    if [ $SMDB_LOGFILES -z ]
+    then
+        echo "No changes in the recently $RECENT_DAYS days."
+    fi
+
     for SMDB_LOGFILE in ${SMDB_LOGFILES[@]}
     do
         printf "%-20s%-100s\n" "SMDB" "$SMDB_LOGFILE"
     done
+
     echo
     # JEUS
     echo "######## $STEP.2 JEUS Log ########"
     printf "%-20s%-100s\n" "JEUS" "LOG FILE"
     echo "-----------------------------------"
     JEUS_LOGFILES=(`find jeus8 -mtime -$RECENT_DAYS -name '*.log' -o -name '*.out'`)
+
+    if [ $JEUS_LOGFILES -z ]
+    then
+        echo "No changes in the recently $RECENT_DAYS days."
+    fi
+
     for JEUS_LOGFILE in ${JEUS_LOGFILES[@]}
     do
         printf "%-20s%-100s\n" "JUES" "$JEUS_LOGFILE"
     done
     echo
+
     # HyperLoader
     echo "######## $STEP.3 HyperLoader Log ########"
     printf "%-20s%-100s\n" "HyperLoader" "LOG FILE"
     echo "-----------------------------------"
     HYPER_LOGFILES=(`find hyperLoader -mtime -$RECENT_DAYS -name '*.log' -o -name '*.out'`)
+    
+    if [ $HYPER_LOGFILES -z ]
+    then
+        echo "No changes in the recently $RECENT_DAYS days."
+    fi
+
     for HYPER_LOGFILE in ${HYPER_LOGFILES[@]}
     do
         printf "%-20s%-100s\n" "HyperLoader" "$HYPER_LOGFILE"
     done
     echo
+
     # ProObject
     echo "######## $STEP.4 ProObject Log ########"
     printf "%-20s%-100s\n" "ProObject" "LOG FILE"
     echo "-----------------------------------"
     PROOB_LOGFILES=(`find proobject7 -mtime -$RECENT_DAYS -name '*.log' -o -name '*.out'`)
+
+    if [ $PROOB_LOGFILES -z ]
+    then
+        echo "No changes in the recently $RECENT_DAYS days."
+    fi
+
     for PROOB_LOGFILE in ${PROOB_LOGFILES[@]}
     do
         printf "%-20s%-100s\n" "ProObject" "$PROOB_LOGFILE"
