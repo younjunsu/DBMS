@@ -34,7 +34,7 @@ STEP="ENV"
     printf "%-20s%-100s\n" "HL_HOME" "$HL_HOME"
     printf "%-20s%-100s\n" "PROOBJECT_HOME" "$PROOBJECT_HOME"
     echo
-    echo "######## DIRECTORY CREATE ########"
+    echo "######## DIRECTORY CREATION TIME ########"
     echo "######## SYSMASTER_HOME ########"
     stat $SYSMASTER_HOME |grep Access
     echo
@@ -142,6 +142,7 @@ STEP=5
     echo "######## $STEP. CPU CHECK ########"
     echo "######## $STEP.1 vmstat ########"
     vmstat 1 5
+    echo
     echo "######## $STEP.2 TOP CPU (10 process) ########"
     echo "USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND"
     ps -aux  |grep -v "%CPU"|sort -k 3 -r |head -n 10
