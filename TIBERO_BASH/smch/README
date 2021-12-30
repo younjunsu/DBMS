@@ -1,0 +1,10 @@
+### smchk.sh usage
+## Forground
+$ sh smchk.sh recently_days
+
+## Logfile
+$ sh smchk.sh recently_days > filename
+
+## Example
+# Recently 35 days checking
+$ sh smchk.sh 35 > 20211211.log

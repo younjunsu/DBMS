@@ -10,11 +10,12 @@
 # xxxx.xx.xx xxxxx                 (Verxx)
 # ------------------------------------------------------------------------------
 
-printf "#%-50s#\n" "##################################################"
-printf "#%-50s#\n" " SYSMASTER7"
-printf "#%-50s#\n" "##################################################"
-echo
-echo
+    printf "#%-50s#\n" "##################################################"
+    printf "#%-50s#\n" " SYSMASTER7"
+    printf "#%-50s#\n" "##################################################"
+    echo
+    echo
+
 ## ENV CHECK
 STEP="ENV"
     if [ $SYSMASTER_HOME -z ] || [ $TB_HOME -z ] || [ $TB_SID -z ] || [ $JEUS_HOME -z ] || [$HL_HOME -z ] || [ $PROOBJECT_HOME -z]
@@ -112,8 +113,8 @@ STEP=3
     echo
 
 STEP=4
-    echo "######## $STEP. Space usage ########"
-    echo "######## $STEP.1 Total ########"
+    echo "######## $STEP. DISK Space usage ########"
+    echo "######## $STEP.1 Total Size ########"
     df -h
     echo
     echo "######## $STEP.2 Size on by type ########"
