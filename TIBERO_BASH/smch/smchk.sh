@@ -10,38 +10,41 @@
 # xxxx.xx.xx xxxxx                 (Verxx)
 # ------------------------------------------------------------------------------
 ## ENV CHECK
-TB_HOME
-TB_SID
-JEUS_HOME
-SYSMASTER_HOME
-HL_HOME
-PROOBJECT_HOME
+STEP="ENV"
+    echo "######## $STEP CHECK ########"
+    printf "%-20s%-100s\n" "ENV NAME" "VALUE"
+    echo "---------------------------------"
+    printf "%-20s%-100s\n" "SYSMASTER_HOME" "$SYSMASTER_HOME"
+    printf "%-20s%-100s\n" "TB_HOME" "$TB_HOME"
+    printf "%-20s%-100s\n" "TB_SID" "$TB_SID"
+    printf "%-20s%-100s\n" "JEUS_HOME" "$JEUS_HOME"
+    printf "%-20s%-100s\n" "HL_HOME" "$HL_HOME"
+    printf "%-20s%-100s\n" "PROOBJECT_HOME" "$PROOBJECT_HOME"
+    echo
+    echo
 
-
-
-## STEP 1
 STEP=1
-echo "######## $STEP. SYSTEM RESOURCE ########"
-echo "######## $STEP.1 Memory ########"
-free -g
-echo
-echo "######## $STEP.2 CPU ########"
-SYSTEM_CPU=`cat /proc/cpuinfo |grep -i "physical id" |sort |uniq -c |awk '{print $1}' |wc -l`
-SYSTEM_CORE=`cat /proc/cpuinfo |grep -i "physical id" |sort |uniq -c |awk '{sum +=$1} END {print sum}'`
-echo "CPU = "$SYSTEM_CPU", CORE ="$SYSTEM_CORE
-echo
-echo
-## STEP 2
+    echo "######## $STEP. SYSTEM RESOURCE ########"
+    echo "######## $STEP.1 Memory ########"
+    free -g
+    echo
+    echo "######## $STEP.2 CPU ########"
+    SYSTEM_CPU=`cat /proc/cpuinfo |grep -i "physical id" |sort |uniq -c |awk '{print $1}' |wc -l`
+    SYSTEM_CORE=`cat /proc/cpuinfo |grep -i "physical id" |sort |uniq -c |awk '{sum +=$1} END {print sum}'`
+    echo "CPU = "$SYSTEM_CPU", CORE ="$SYSTEM_CORE
+    echo
+    echo
 STEP=2
     echo "######## $STEP. Started Time ########"
+    echo "Current DateTime "`date +%Y-%m-%d" "%T`
     printf "%-20s%-50s%-20s%-30s\n" "TYPE" "Prcess CMD" "PID" "START-TIME"
     echo "-------------------------------------------------------------------------------------------------------------"
-# SYSTEMD
+    # SYSTEMD
     SYSTEM_STARTTIME=`uptime -s`
     SYSTEM_CMD="systemd"
     printf "%-20s%-50s%-20s%-30s\n" "SYSTEM" "$SYSTEM_CMD" "1" "$SYSTEM_STARTTIME"
     
-# SMDB
+    # SMDB
     SMDB_PID=`ps -ef |grep -w tbsvr |grep -v grep |awk '{print $2}'`
     SMDB_STARTTIME=`ps -eo lstart,pid,cmd |grep $SMDB_PID|grep -vE "grep|cub_admin"| awk '{
     cmd="date -d\""$1 FS $2 FS $3 FS $4 FS $5"\" +\047%Y-%m-%d %H:%M:%S\047"; 
@@ -49,7 +52,7 @@ STEP=2
     SMDB_CMD="TIBERO"
     printf "%-20s%-50s%-20s%-30s\n" "SMDB" "$SMDB_CMD" "$SMDB_PID" "$SMDB_STARTTIME"
 
-#JEUS
+    # JEUS
     JEUS_PIDS=(`ps -ef|grep sysmaster |grep java |grep jeus |awk '{print $2}'`)
     for JEUS_PID in ${JEUS_PIDS[@]}
     do
@@ -61,7 +64,7 @@ STEP=2
         printf "%-20s%-50s%-20s%-30s\n" "JEUS" "$JEUS_CMD" "$JEUS_PID" "$JEUS_STARTTIME"
     done
 
-#HyperLoader
+    # HyperLoader
     HYPER_PIDS=(`ps -ef|grep hyper |grep -v grep |awk '{print $2}'`)
     for HYPER_PID in ${HYPER_PIDS[@]}
     do
@@ -74,14 +77,12 @@ STEP=2
     done
     echo
     echo
-## STEP 3
 STEP=3
     echo "######## $STEP. Port check ########"
     echo "Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    "
     netstat -nlp |grep tcp 
     echo
     echo
-## STEP 4
 STEP=4
     echo "######## $STEP. Space usage ########"
     echo "######## $STEP.1 Total ########"
@@ -143,27 +144,25 @@ STEP=4
 EOF
     echo
     echo
-## STEP 5
 STEP=5
-    echo "######## $STEP. CPU used TOP 10 ########"
+    echo "######## $STEP. TOP CPU (10 process) ########"
     echo "USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND"
-    ps -aux  |grep -v "%MEM"|sort -k 3 -r |head -n 10
-
-## STEP 6
+    ps -aux  |grep -v "%CPU"|sort -k 3 -r |head -n 10
+    echo
+    echo
 STEP=6
     echo "######## $STEP. LOG CHECK ########"
     cd $SYSMASTER_HOME
-# SMDB
+    # SMDB
     printf "%-20s%-100s\n" "SMDB" "LOG FILE"
     echo "-----------------------------------"
-    SMDB_LOGFILES=(`find tibero6/instance -mtime -30 -name '*.log' -o -name '*.out'`)
+    SMDB_LOGFILES=(`find tibero6/instance -mtime -30 -name 'sys.log' -o -name '*.out'`)
     for SMDB_LOGFILE in ${SMDB_LOGFILES[@]}
     do
         printf "%-20s%-100s\n" "SMDB" "$SMDB_LOGFILE"
     done
     echo
-    echo
-# JEUS
+    # JEUS
     printf "%-20s%-100s\n" "JEUS" "LOG FILE"
     echo "-----------------------------------"
     JEUS_LOGFILES=(`find jeus8 -mtime -30 -name '*.log' -o -name '*.out'`)
@@ -172,8 +171,7 @@ STEP=6
         printf "%-20s%-100s\n" "JUES" "$JEUS_LOGFILE"
     done
     echo
-    echo
-# HyperLoader
+    # HyperLoader
     printf "%-20s%-100s\n" "HyperLoader" "LOG FILE"
     echo "-----------------------------------"
     HYPER_LOGFILES=(`find hyperLoader -mtime -30 -name '*.log' -o -name '*.out'`)
@@ -182,8 +180,7 @@ STEP=6
         printf "%-20s%-100s\n" "HyperLoader" "$HYPER_LOGFILE"
     done
     echo
-    echo
-# ProObject
+    # ProObject
     printf "%-20s%-100s\n" "ProObject" "LOG FILE"
     echo "-----------------------------------"
     PROOB_LOGFILES=(`find proobject7 -mtime -30 -name '*.log' -o -name '*.out'`)
@@ -193,5 +190,3 @@ STEP=6
     done
     echo
     echo
-
-    
