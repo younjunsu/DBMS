@@ -9,8 +9,21 @@
 # ------------------------------------------------------------------------------
 # xxxx.xx.xx xxxxx                 (Verxx)
 # ------------------------------------------------------------------------------
+
 ## ENV CHECK
 STEP="ENV"
+    if [ $SYSMASTER_HOME -z ] || [ $TB_HOME -z ] || [ $TB_SID -z ] || [ $JEUS_HOME -z ] || [$HL_HOME -z ] || [ $PROOBJECT_HOME -z]
+    then
+        printf "%-20s%-100s\n" "ENV NAME" "VALUE"
+        echo "---------------------------------"
+        printf "%-20s%-100s\n" "SYSMASTER_HOME" "$SYSMASTER_HOME"
+        printf "%-20s%-100s\n" "TB_HOME" "$TB_HOME"
+        printf "%-20s%-100s\n" "TB_SID" "$TB_SID"
+        printf "%-20s%-100s\n" "JEUS_HOME" "$JEUS_HOME"
+        printf "%-20s%-100s\n" "HL_HOME" "$HL_HOME"
+        printf "%-20s%-100s\n" "PROOBJECT_HOME" "$PROOBJECT_HOME"
+        exit
+    fi
     echo "######## $STEP CHECK ########"
     printf "%-20s%-100s\n" "ENV NAME" "VALUE"
     echo "---------------------------------"
@@ -21,8 +34,23 @@ STEP="ENV"
     printf "%-20s%-100s\n" "HL_HOME" "$HL_HOME"
     printf "%-20s%-100s\n" "PROOBJECT_HOME" "$PROOBJECT_HOME"
     echo
+    echo "######## DIRECTORY CREATE ########"
+    echo "######## SYSMASTER_HOME ########"
+    stat $SYSMASTER_HOME |grep Access
     echo
-
+    echo "######## TB_HOME ########"
+    stat $TB_HOME |grep Access
+    echo
+    echo "######## JEUS_HOME ########"
+    stat $JEUS_HOME |grep Access
+    echo
+    echo "######## HL_HOME ########"
+    stat $HL_HOME |grep Access
+    echo
+    echo "######## PROOBJECT_HOME ########"
+    stat $PROOBJECT_HOME |grep Access
+    echo
+    echo
 STEP=1
     echo "######## $STEP. SYSTEM RESOURCE ########"
     echo "######## $STEP.1 Memory ########"
@@ -102,58 +130,38 @@ STEP=4
     printf "%-15s%-10s%-10s%-10s%-10s%-20s\n" "ProObject" "${PROOBJECT_HOME_SIZE[1]}" "${PROOBJECT_HOME_SIZE[2]}" "${PROOBJECT_HOME_SIZE[3]}" "${PROOBJECT_HOME_SIZE[4]}" "${PROOBJECT_HOME_SIZE[5]}"
     echo
     echo "######## $STEP.3 SMDB Talespace usage ########"
-    tbsql sys/tibero  << EOF
-     set linesize 500;
-	set feedback off;
-	col "Tablespace Name" format a20;
-	col "Bytes(MB)"       format 999,999,999;
-	col "MaxBytes(MB)"    format 999,999,999;
-	col "Used(MB)"        format 999,999,999;
-	col "Percent(%)"      format 9999999.99;
-	col "Free(MB)"        format 999,999,999;
-	col "Free_REAL(MB)"   format 999,999,999;
-
-    SELECT TO_CHAR(sysdate, 'yyyy/mm/dd hh24:mi:ss') "Current Time",
-           TABLESPACE_NAME  "Tablespace Name",
-                   SUM("total MB")  "Bytes(MB)",
-                   SUM("max MB")    "MaxBytes(MB)",
-                   SUM("Used MB")   "Used(MB)",
-                   round( (SUM("Used MB") / SUM("total MB") * 100 ),2 ) "Percent(%)",
-                   SUM("Free MB")  "Free(MB)",
-                   SUM("max MB")-SUM("Used MB") "Free_REAL(MB)",
-                   round( (SUM("max MB")-SUM("Used MB")) / SUM("max MB") * 100, 2) "Free_REAL(%)"
-            FROM   (Select D.TABLESPACE_NAME,
-                           d.file_name "Datafile name",
-                           DECODE(SUM(f.Bytes), null, ROUND(MAX(d.bytes)/1024/1024,2),
-                                                      ROUND((MAX(d.bytes)/1024/1024) - (SUM(f.bytes)/1024/1024),2)) "Used MB",
-                           DECODE(SUM(f.bytes), null, 0, ROUND(SUM(f.Bytes)/1024/1024,2)) "Free MB" ,
-                           ROUND(MAX(d.bytes)/1024/1024,2) "total MB",
-                           DECODE(ROUND(MAX(d.MAXBYTES)/1024/1024,2), 0, ROUND(MAX(d.bytes)/1024/1024,2),
-                                                                         ROUND(MAX(d.MAXBYTES)/1024/1024,2)) "max MB"
-                      From (SELECT * FROM DBA_FREE_SPACE WHERE BYTES/1024/1024 > 1) f , DBA_DATA_FILES d
-                     Where f.tablespace_name(+) = d.tablespace_name
-                       And f.file_id(+) = d.file_id
-                     Group by D.TABLESPACE_NAME, d.file_name
-                     Order by D.TABLESPACE_NAME
-                   )
-            GROUP BY TABLESPACE_NAME
-            ORDER BY "Free_REAL(%)", "Tablespace Name"
-    ;
+function SMDB_TABLESPACE(){   
+    tbsql sys/tibero @sql/smdb_tablespace.sql  << EOF
     quit
-
 EOF
+}
+    SMDB_TABLESPACE |grep -vE "tbSQL|Corporation|Connected|^$|Disconnected"
     echo
     echo
 STEP=5
-    echo "######## $STEP. TOP CPU (10 process) ########"
+    echo "######## $STEP. CPU CHECK ########"
+    echo "######## $STEP.1 vmstat ########"
+    vmstat 1 5
+    echo "######## $STEP.2 TOP CPU (10 process) ########"
     echo "USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND"
     ps -aux  |grep -v "%CPU"|sort -k 3 -r |head -n 10
     echo
     echo
 STEP=6
+    echo "######## $STEP. SMDB CHECK ########"
+    function SMDB_REGIMON(){
+     tbsql sys/tibero @sql/smdb_regimon.sql  << EOF
+    quit
+EOF
+    }
+    SMDB_REGIMON |grep -vE "tbSQL|Corporation|Connected|^$|Disconnected"
+    echo
+    echo
+STEP=7
     echo "######## $STEP. LOG CHECK ########"
     cd $SYSMASTER_HOME
     # SMDB
+    echo "######## $STEP.1 SMDB LOG ########"
     printf "%-20s%-100s\n" "SMDB" "LOG FILE"
     echo "-----------------------------------"
     SMDB_LOGFILES=(`find tibero6/instance -mtime -30 -name 'sys.log' -o -name '*.out'`)
@@ -163,6 +171,7 @@ STEP=6
     done
     echo
     # JEUS
+    echo "######## $STEP.2 JEUS LOG ########"
     printf "%-20s%-100s\n" "JEUS" "LOG FILE"
     echo "-----------------------------------"
     JEUS_LOGFILES=(`find jeus8 -mtime -30 -name '*.log' -o -name '*.out'`)
@@ -172,6 +181,7 @@ STEP=6
     done
     echo
     # HyperLoader
+    echo "######## $STEP.3 HyperLoader LOG ########"
     printf "%-20s%-100s\n" "HyperLoader" "LOG FILE"
     echo "-----------------------------------"
     HYPER_LOGFILES=(`find hyperLoader -mtime -30 -name '*.log' -o -name '*.out'`)
@@ -181,6 +191,7 @@ STEP=6
     done
     echo
     # ProObject
+    echo "######## $STEP.4 ProObject LOG ########"
     printf "%-20s%-100s\n" "ProObject" "LOG FILE"
     echo "-----------------------------------"
     PROOB_LOGFILES=(`find proobject7 -mtime -30 -name '*.log' -o -name '*.out'`)
