@@ -1,3 +1,14 @@
+#-------------------------------------------------------------------------------
+# @File name      : smchk.sh
+# @Contents       : Sysmaster 7 
+# @Created by     : Yoon Jun Su
+# @Created date   : 2021.12.30
+# @Team           : DB Tech
+# @Modifed History 
+# ------------------------------------------------------------------------------
+# 2022.01.xx xxxxx                 (Ver1.0)
+# ------------------------------------------------------------------------------
+
 ### smchk.sh usage
 ## Forground
 $ sh smchk.sh recently_days

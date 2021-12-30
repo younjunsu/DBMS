@@ -1,15 +1,7 @@
 #!/usr/bin/bash
-#-------------------------------------------------------------------------------
-# @File name      : smchk.sh
-# @Contents       : 
-# @Created by     : 
-# @Created date   : 
-# @Team           : 
-# @Modifed History 
-# ------------------------------------------------------------------------------
-# xxxx.xx.xx xxxxx                 (Verxx)
-# ------------------------------------------------------------------------------
-
+####################################################
+# SYSMASTER7 Maintenance Shell                     #
+####################################################
 
 ## Default Configuration
 RECENT_DAYS=$1
@@ -24,15 +16,14 @@ then
     SMDB_LOG_PATH="tibero6/instance"
 fi
 
-##
+## Shell running
     printf "#%-50s#\n" "##################################################"
     printf "#%-50s#\n" " SYSMASTER7"
     printf "#%-50s#\n" "##################################################"
-
     echo
 
-## ENV CHECK
-STEP="ENV"
+## Environment CHECK
+STEP="Environment"
     if [ $SYSMASTER_HOME -z ] || [ $TB_HOME -z ] || [ $TB_SID -z ] || [ $JEUS_HOME -z ] || [$HL_HOME -z ] || [ $PROOBJECT_HOME -z]
     then
         echo "[ERROR] Check environment variables"
@@ -48,7 +39,7 @@ STEP="ENV"
         echo "---------------------------------"
         exit
     fi
-    echo "######## $STEP Check ########"
+    echo "######## $STEP check ########"
     printf "%-20s%-100s\n" "Home type" "Path"
     echo "---------------------------------"
     printf "%-20s%-100s\n" "SYSMASTER_HOME" "$SYSMASTER_HOME"
