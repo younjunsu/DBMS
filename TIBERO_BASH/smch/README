@@ -6,8 +6,16 @@
 # @Team           : DB Tech
 # @Modifed History 
 # ------------------------------------------------------------------------------
-# 2022.01.xx xxxxx                 (Ver. 20211231)
+# 2021.12.31 Yoon Jun Su       (Ver. 20211231)
 # ------------------------------------------------------------------------------
+## Directory Structure
+smchk
+├── README
+├── smchk.sh
+└── sql
+    ├── smdb_regimon.sql
+    └── smdb_tablespace.sql
+1 directory, 4 files
 
 ### smchk.sh usage
 ## Forground
