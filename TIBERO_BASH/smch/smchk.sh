@@ -248,7 +248,7 @@ STEP=8
     echo "######## $STEP.4 ProObject Log ########"
     printf "%-20s%-100s\n" "ProObject" "LOG FILE"
     echo "-----------------------------------"
-    PROOB_LOGFILES=(`find proobject7 -mtime -$RECENT_DAYS -name '*.log' -o -name '*.out'`)
+    PROOB_LOGFILES=(`find proobject7 -mtime -$RECENT_DAYS -name 'app.log'`)
 
     if [ $PROOB_LOGFILES -z ]
     then
