@@ -4,6 +4,11 @@
 ####################################################
 
 ## Default Configuration
+JEUS_ID=jeus
+JEUS_PSW=jeus
+SMDB_ID=sys
+SMDB_PSW=tibero
+
 RECENT_DAYS=$1
 if [ $RECENT_DAYS -z ]
 then
@@ -142,7 +147,7 @@ STEP=4
     echo
     echo "######## $STEP.3 SMDB Talespace usage ########"
 function SMDB_TABLESPACE(){   
-    tbsql sys/tibero @sql/smdb_tablespace.sql  << EOF
+    tbsql $SMDB_ID/$SMDB_PSW @sql/smdb_tablespace.sql  << EOF
     quit
 EOF
 }
@@ -164,7 +169,7 @@ STEP=5
 STEP=6
     echo "######## $STEP. SMDB Check ########"
     function SMDB_REGIMON(){
-     tbsql sys/tibero @sql/smdb_regimon.sql  << EOF
+     tbsql $SMDB_ID/$SMDB_PSW @sql/smdb_regimon.sql  << EOF
     quit
 EOF
     }
@@ -172,7 +177,19 @@ EOF
     echo
     echo
 
-STEP=7
+SETP=7
+    echo "######## $STEP. JEUS Check ########"
+    function JEUS_MON(){
+        jeusadmin -u $JEUS_ID -p $JEUS_PSW << EOF
+        si
+        application-info
+        ti
+EOF
+    }
+    JEUS_MON 
+    echo
+    echo
+STEP=8
     echo "######## $STEP. Log check ########"
     cd $SYSMASTER_HOME
 
@@ -195,9 +212,9 @@ STEP=7
     echo
     # JEUS
     echo "######## $STEP.2 JEUS Log ########"
-    printf "%-20s%-100s\n" "JEUS" "LOG FILE"
+    printf "%-20s%-100s\n" "JEUS" "LOG FILE"    
     echo "-----------------------------------"
-    JEUS_LOGFILES=(`find jeus8 -mtime -$RECENT_DAYS -name '*.log' -o -name '*.out'`)
+    JEUS_LOGFILES=(`find jeus8/domains -mtime -$RECENT_DAYS -name 'access_*.log' -o -name 'JeusServer*.log'`)
 
     if [ $JEUS_LOGFILES -z ]
     then
