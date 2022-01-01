@@ -17,14 +17,14 @@ smchk
     └── smdb_tablespace.sql
 1 directory, 4 files
 
-### smchk.sh usage
-## Forground
+## smchk.sh usage
+# Forground
 $ sh smchk.sh recently_days
 
-## Logfile
+# Logfile
 $ sh smchk.sh recently_days > filename
 
-### Example
+## Example
 # Recently 35 days checking
 # default recently_days = 30
 $ sh smchk.sh 35 > 20211211.log
