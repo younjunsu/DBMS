@@ -185,7 +185,6 @@ SETP=7
         jeusadmin -u $JEUS_ID -p $JEUS_PSW << EOF
         si
         application-info
-        ti
 EOF
     }
     JEUS_MON 
@@ -216,8 +215,7 @@ STEP=8
     echo "######## $STEP.2 JEUS Log ########"
     printf "%-20s%-100s\n" "JEUS" "LOG FILE"    
     echo "-----------------------------------"
-    JEUS_LOGFILES=(`find jeus8/domains -mtime -$RECENT_DAYS -name 'access_*.log' -o -name 'JeusServer*.log'`)
-    ## OutOfMemory
+    JEUS_LOGFILES=(`find jeus8/domains -mtime -$RECENT_DAYS -name 'access_*.log' -o -name 'JeusServer*.log' |xargs grep -i "OutOfMe"`)
     if [ $JEUS_LOGFILES -z ]
     then
         echo "No changes in the recently $RECENT_DAYS days."
