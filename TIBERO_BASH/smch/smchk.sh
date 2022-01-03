@@ -23,7 +23,8 @@ fi
 
 ## Shell running
     printf "#%-50s#\n" "##################################################"
-    printf "#%-50s#\n" " SYSMASTER7"
+    printf "#%-50s#\n" " SYSMASTER7 Maintenance Result"
+    printf "#%-50s#\n" "`date +%Y-%m-%d" "%T`"
     printf "#%-50s#\n" "##################################################"
     echo
 
@@ -56,6 +57,7 @@ STEP="Environment"
     echo
     echo "######## Directory Creation Time ########"
     printf "%-20s%-100s\n" "Home type" "Creation Time"
+    echo "---------------------------------"
     printf "%-20s%-100s\n" "SYSMASTER_HOME" "`stat $SYSMASTER_HOME |grep Access |grep -v Gid`"
     printf "%-20s%-100s\n" "TB_HOME" "`stat $TB_HOME |grep Access |grep -v Gid`"
     printf "%-20s%-100s\n" "JEUS_HOME" "`stat $JEUS_HOME |grep Access |grep -v Gid`"
@@ -215,7 +217,7 @@ STEP=8
     printf "%-20s%-100s\n" "JEUS" "LOG FILE"    
     echo "-----------------------------------"
     JEUS_LOGFILES=(`find jeus8/domains -mtime -$RECENT_DAYS -name 'access_*.log' -o -name 'JeusServer*.log'`)
-
+    ## OutOfMemory
     if [ $JEUS_LOGFILES -z ]
     then
         echo "No changes in the recently $RECENT_DAYS days."
