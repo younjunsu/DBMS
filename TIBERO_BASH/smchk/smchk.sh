@@ -24,7 +24,7 @@ fi
 ## Shell running
     printf "#%-50s#\n" "##################################################"
     printf "#%-50s#\n" " SYSMASTER7 Maintenance Result"
-    printf "#%-50s#\n" "`date +%Y-%m-%d" "%T`"
+    printf "#%-50s#\n" " `date +%Y-%m-%d" "%T`"
     printf "#%-50s#\n" "##################################################"
     echo
 
@@ -54,6 +54,21 @@ STEP="Environment"
     printf "%-20s%-100s\n" "JEUS_HOME" "$JEUS_HOME"
     printf "%-20s%-100s\n" "HL_HOME" "$HL_HOME"
     printf "%-20s%-100s\n" "PROOBJECT_HOME" "$PROOBJECT_HOME"
+    echo
+
+    echo "######## SysMaster version check ########"
+    #cd $PROOBJECT_HOME/application/sysmaster7db/bin
+    #sh $PROOBJECT_HOME/application/sysmaster7db/bin/version.sh 2>/dev/null
+    
+    $JEUS_HOME/bin/jeusadmin -version
+    $JEUS_HOME/bin/jeusadmin -fullversion
+    echo
+    echo
+    echo '==========================================='
+	echo '         SysMaster 7 SMDB(TIBERO) Version'	
+	echo '==========================================='
+    tbboot -version
+    echo
     echo
     echo "######## Directory Creation Time ########"
     printf "%-20s%-100s\n" "Home type" "Creation Time"
