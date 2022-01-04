@@ -28,6 +28,7 @@ fi
     printf "#%-50s#\n" "##################################################"
     echo
 
+function fn_step_env(){
 ## Environment CHECK
 STEP="Environment"
     if [ $SYSMASTER_HOME -z ] || [ $TB_HOME -z ] || [ $TB_SID -z ] || [ $JEUS_HOME -z ] || [$HL_HOME -z ] || [ $PROOBJECT_HOME -z]
@@ -55,20 +56,6 @@ STEP="Environment"
     printf "%-20s%-100s\n" "HL_HOME" "$HL_HOME"
     printf "%-20s%-100s\n" "PROOBJECT_HOME" "$PROOBJECT_HOME"
     echo
-
-    echo "######## SysMaster version check ########"
-    #cd $PROOBJECT_HOME/application/sysmaster7db/bin
-    #sh $PROOBJECT_HOME/application/sysmaster7db/bin/version.sh 2>/dev/null
-    
-    $JEUS_HOME/bin/jeusadmin -version
-    $JEUS_HOME/bin/jeusadmin -fullversion
-    echo
-    echo
-    echo '==========================================='
-	echo '         SysMaster 7 SMDB(TIBERO) Version'	
-	echo '==========================================='
-    tbboot -version
-    echo
     echo
     echo "######## Directory Creation Time ########"
     printf "%-20s%-100s\n" "Home type" "Creation Time"
@@ -80,7 +67,26 @@ STEP="Environment"
     printf "%-20s%-100s\n" "PROOBJECT_HOME" "`stat $PROOBJECT_HOME |grep Access |grep -v Gid`"
     echo
     echo
+}
 
+function fn_step_version(){
+STEP="Version"
+    echo "######## SysMaster version check ########"
+    echo "########  Sysmaster UI $STEP ########"
+    echo
+    echo "########  Sysmaster Server $STEP ########"
+    echo
+    echo "########  JEUS $STEP ########"
+    $JEUS_HOME/bin/jeusadmin -version
+    $JEUS_HOME/bin/jeusadmin -fullversion
+    echo
+    echo "########  SMDB $STEP ########"
+    tbboot -version
+    echo
+    echo
+}
+
+function fn_step_1(){
 STEP=1
     echo "######## $STEP. System resource ########"
     echo "######## $STEP.1 Memory ########"
@@ -92,7 +98,9 @@ STEP=1
     echo "CPU = "$SYSTEM_CPU", CORE ="$SYSTEM_CORE
     echo
     echo
+}
 
+function fn_step_2(){
 STEP=2
     echo "######## $STEP. Started time ########"
     echo "Current dateTime "`date +%Y-%m-%d" "%T`
@@ -136,14 +144,18 @@ STEP=2
     done
     echo
     echo
+}
 
+function fn_step_3(){
 STEP=3
     echo "######## $STEP. Port check ########"
     echo "Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    "
     netstat -nlp |grep tcp 
     echo
     echo
+}
 
+function fn_step_4(){
 STEP=4
     echo "######## $STEP. Disk space usage ########"
     echo "######## $STEP.1 Total size ########"
@@ -171,7 +183,9 @@ EOF
     SMDB_TABLESPACE |grep -vE "tbSQL|Corporation|Connected|^$|Disconnected"
     echo
     echo
+}
 
+function fn_step_5(){
 STEP=5
     echo "######## $STEP. CPU Check ########"
     echo "######## $STEP.1 vmstat ########"
@@ -182,7 +196,9 @@ STEP=5
     ps -aux  |grep -v "%CPU"|sort -k 3 -r |head -n 10
     echo
     echo
+}
 
+function fn
 STEP=6
     echo "######## $STEP. SMDB Check ########"
     function SMDB_REGIMON(){
