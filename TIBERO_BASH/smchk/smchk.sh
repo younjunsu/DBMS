@@ -26,6 +26,12 @@ fi
 ## Program function
 function ft_step_env(){
 STEP="1"
+    printf "#%-50s#\n" "##################################################"
+    printf "#%-50s#\n" " SYSMASTER7 Maintenance Result"
+    printf "#%-50s#\n" " `date +%Y-%m-%d" "%T`"
+    printf "#%-50s#\n" "##################################################"
+    echo
+    echo
     if [ $SYSMASTER_HOME -z ] || [ $TB_HOME -z ] || [ $TB_SID -z ] || [ $JEUS_HOME -z ] || [$HL_HOME -z ] || [ $PROOBJECT_HOME -z]
     then
         echo "[ERROR] Check environment variables"
@@ -41,7 +47,7 @@ STEP="1"
         echo "---------------------------------"
         exit
     fi
-    echo "######## $STEP Environment check ########"
+    echo "######## $STEP. Environment check ########"
     printf "%-20s%-100s\n" "Home type" "Path"
     echo "---------------------------------"
     printf "%-20s%-100s\n" "SYSMASTER_HOME" "$SYSMASTER_HOME"
@@ -66,28 +72,30 @@ STEP="1"
 
 function ft_step_version(){
 STEP="2"
-    echo "######## $STEP SysMaster version check ########"
-    echo "########  Sysmaster UI $STEP ########"
-    echo
-    echo "########  Sysmaster Server $STEP ########"
-    echo
-    echo "########  JEUS $STEP ########"
+    echo "######## $STEP. SysMaster version check ########"
+    echo "######## $STEP.1. JEUS ########"
     $JEUS_HOME/bin/jeusadmin -version
     $JEUS_HOME/bin/jeusadmin -fullversion
     echo
-    echo "########  SMDB $STEP ########"
+    echo "######## $STEP.2. Sysmaster UI  ########"
+    VERSION_PATH=$PROOBJECT_HOME/application/sysmaster7db/bin 
+    unzip -o $VERSION_PATH/file/sysmaster_db.war META-INF/MANIFEST.MF -d $VERSION_PATH/file/version |grep -vE "Archive:|inflating:"
+    cat $VERSION_PATH/file/version/META-INF/MANIFEST.MF
+    echo "######## $STEP.3. Sysmaster Server  ########"
+    VERSION_PATH=$PROOBJECT_HOME/application/sysmaster7db/common
+    java -jar $VERSION_PATH/lib/common.jar
+    echo "######## $STEP.4. SMDB ########"
     tbboot -version
-    echo
     echo
 }
 
 function ft_step_system(){
 STEP="3"
     echo "######## $STEP. System resource ########"
-    echo "######## $STEP.1 Memory ########"
+    echo "######## $STEP.1. Memory ########"
     free -g
     echo
-    echo "######## $STEP.2 CPU ########"
+    echo "######## $STEP.2. CPU ########"
     SYSTEM_CPU=`cat /proc/cpuinfo |grep -i "physical id" |sort |uniq -c |awk '{print $1}' |wc -l`
     SYSTEM_CORE=`cat /proc/cpuinfo |grep -i "physical id" |sort |uniq -c |awk '{sum +=$1} END {print sum}'`
     echo "CPU = "$SYSTEM_CPU", CORE ="$SYSTEM_CORE
@@ -153,10 +161,10 @@ STEP="5"
 function ft_step_space(){
 STEP="6"
     echo "######## $STEP. Disk space usage ########"
-    echo "######## $STEP.1 Total size ########"
+    echo "######## $STEP.1. Total size ########"
     df -h
     echo
-    echo "######## $STEP.2 Size on by type ########"
+    echo "######## $STEP.2. Size on by type ########"
     SYSMASTER_HOME_SIZE=(`df -h $SYSMASTER_HOME|grep -v Mounted`)
     TB_HOME_SIZE=(`df -h $TB_HOME|grep -v Mounted`)
     JEUS_HOME_SIZE=(`df -h $JEUS_HOME|grep -v Mounted`)
@@ -169,7 +177,7 @@ STEP="6"
     printf "%-15s%-10s%-10s%-10s%-10s%-20s\n" "HyperLoader" "${HL_HOME_SIZE[1]}" "${HL_HOME_SIZE[2]}" "${HL_HOME_SIZE[3]}" "${HL_HOME_SIZE[4]}" "${HL_HOME_SIZE[5]}"
     printf "%-15s%-10s%-10s%-10s%-10s%-20s\n" "ProObject" "${PROOBJECT_HOME_SIZE[1]}" "${PROOBJECT_HOME_SIZE[2]}" "${PROOBJECT_HOME_SIZE[3]}" "${PROOBJECT_HOME_SIZE[4]}" "${PROOBJECT_HOME_SIZE[5]}"
     echo
-    echo "######## $STEP.3 SMDB Talespace usage ########"
+    echo "######## $STEP.3. SMDB Talespace usage ########"
 function SMDB_TABLESPACE(){   
     tbsql $SMDB_ID/$SMDB_PSW @sql/smdb_tablespace.sql  << EOF
     quit
@@ -183,10 +191,10 @@ EOF
 function ft_step_cpu(){
 STEP="7"
     echo "######## $STEP. CPU Check ########"
-    echo "######## $STEP.1 vmstat ########"
+    echo "######## $STEP.1. vmstat ########"
     vmstat 1 5
     echo
-    echo "######## $STEP.2 TOP CPU (10 process) ########"
+    echo "######## $STEP.2. TOP CPU (10 process) ########"
     echo "USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND"
     ps -aux  |grep -v "%CPU"|sort -k 3 -r |head -n 10
     echo
@@ -205,7 +213,7 @@ EOF
     echo
     echo
 }
-
+echo
 function ft_step_jues(){
 SETP="9"
     echo "######## $STEP. JEUS Check ########"
@@ -226,7 +234,7 @@ STEP="10"
     cd $SYSMASTER_HOME
 
     # SMDB
-    echo "######## $STEP.1 SMDB Log ########"
+    echo "######## $STEP.1. SMDB Log ########"
     printf "%-20s%-100s\n" "SMDB" "LOG FILE"
     echo "-----------------------------------"
     SMDB_LOGFILES=(`find $SMDB_LOG_PATH -mtime -$RECENT_DAYS -name 'sys.log' -o -name '*.out'`)
@@ -243,7 +251,7 @@ STEP="10"
 
     echo
     # JEUS
-    echo "######## $STEP.2 JEUS Log ########"
+    echo "######## $STEP.2. JEUS Log ########"
     printf "%-20s%-100s\n" "JEUS" "LOG FILE"    
     echo "-----------------------------------"
     JEUS_LOGFILES=(`find jeus8/domains -mtime -$RECENT_DAYS -name 'access_*.log' -o -name 'JeusServer*.log' |xargs grep -i "OutOfMe"`)
@@ -259,7 +267,7 @@ STEP="10"
     echo
 
     # HyperLoader
-    echo "######## $STEP.3 HyperLoader Log ########"
+    echo "######## $STEP.3. HyperLoader Log ########"
     printf "%-20s%-100s\n" "HyperLoader" "LOG FILE"
     echo "-----------------------------------"
     HYPER_LOGFILES=(`find hyperLoader -mtime -$RECENT_DAYS -name '*.log' -o -name '*.out'`)
@@ -276,7 +284,7 @@ STEP="10"
     echo
 
     # ProObject
-    echo "######## $STEP.4 ProObject Log ########"
+    echo "######## $STEP.4. ProObject Log ########"
     printf "%-20s%-100s\n" "ProObject" "LOG FILE"
     echo "-----------------------------------"
     PROOB_LOGFILES=(`find proobject7 -mtime -$RECENT_DAYS -name 'app.log'`)
@@ -308,11 +316,5 @@ function main(){
     ft_step_jues
     ft_step_log
 }
-
-printf "#%-50s#\n" "##################################################"
-printf "#%-50s#\n" " SYSMASTER7 Maintenance Result"
-printf "#%-50s#\n" " `date +%Y-%m-%d" "%T`"
-printf "#%-50s#\n" "##################################################"
-echo
 main 2>/dev/null
 ##
