@@ -9,6 +9,7 @@ JEUS_PSW=jeus
 SMDB_ID=sys
 SMDB_PSW=tibero
 
+## Program variables
 RECENT_DAYS=$1
 if [ $RECENT_DAYS -z ]
 then
@@ -20,17 +21,11 @@ if [ $SMDB_LOG_PATH -z ]
 then
     SMDB_LOG_PATH="tibero6/instance"
 fi
+##
 
-## Shell running
-    printf "#%-50s#\n" "##################################################"
-    printf "#%-50s#\n" " SYSMASTER7 Maintenance Result"
-    printf "#%-50s#\n" " `date +%Y-%m-%d" "%T`"
-    printf "#%-50s#\n" "##################################################"
-    echo
-
-function fn_step_env(){
-## Environment CHECK
-STEP="Environment"
+## Program function
+function ft_step_env(){
+STEP="1"
     if [ $SYSMASTER_HOME -z ] || [ $TB_HOME -z ] || [ $TB_SID -z ] || [ $JEUS_HOME -z ] || [$HL_HOME -z ] || [ $PROOBJECT_HOME -z]
     then
         echo "[ERROR] Check environment variables"
@@ -46,7 +41,7 @@ STEP="Environment"
         echo "---------------------------------"
         exit
     fi
-    echo "######## $STEP check ########"
+    echo "######## $STEP Environment check ########"
     printf "%-20s%-100s\n" "Home type" "Path"
     echo "---------------------------------"
     printf "%-20s%-100s\n" "SYSMASTER_HOME" "$SYSMASTER_HOME"
@@ -69,9 +64,9 @@ STEP="Environment"
     echo
 }
 
-function fn_step_version(){
-STEP="Version"
-    echo "######## SysMaster version check ########"
+function ft_step_version(){
+STEP="2"
+    echo "######## $STEP SysMaster version check ########"
     echo "########  Sysmaster UI $STEP ########"
     echo
     echo "########  Sysmaster Server $STEP ########"
@@ -86,8 +81,8 @@ STEP="Version"
     echo
 }
 
-function fn_step_1(){
-STEP=1
+function ft_step_system(){
+STEP="3"
     echo "######## $STEP. System resource ########"
     echo "######## $STEP.1 Memory ########"
     free -g
@@ -100,8 +95,8 @@ STEP=1
     echo
 }
 
-function fn_step_2(){
-STEP=2
+function ft_step_uptime(){
+STEP="4"
     echo "######## $STEP. Started time ########"
     echo "Current dateTime "`date +%Y-%m-%d" "%T`
     printf "%-20s%-50s%-20s%-30s\n" "TYPE" "Prcess CMD" "PID" "START-TIME"
@@ -146,8 +141,8 @@ STEP=2
     echo
 }
 
-function fn_step_3(){
-STEP=3
+function ft_step_portscan(){
+STEP="5"
     echo "######## $STEP. Port check ########"
     echo "Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    "
     netstat -nlp |grep tcp 
@@ -155,8 +150,8 @@ STEP=3
     echo
 }
 
-function fn_step_4(){
-STEP=4
+function ft_step_space(){
+STEP="6"
     echo "######## $STEP. Disk space usage ########"
     echo "######## $STEP.1 Total size ########"
     df -h
@@ -185,8 +180,8 @@ EOF
     echo
 }
 
-function fn_step_5(){
-STEP=5
+function ft_step_cpu(){
+STEP="7"
     echo "######## $STEP. CPU Check ########"
     echo "######## $STEP.1 vmstat ########"
     vmstat 1 5
@@ -198,8 +193,8 @@ STEP=5
     echo
 }
 
-function fn
-STEP=6
+function ft_step_smdb(){
+STEP="8"
     echo "######## $STEP. SMDB Check ########"
     function SMDB_REGIMON(){
      tbsql $SMDB_ID/$SMDB_PSW @sql/smdb_regimon.sql  << EOF
@@ -209,8 +204,10 @@ EOF
     SMDB_REGIMON |grep -vE "tbSQL|Corporation|Connected|^$|Disconnected"
     echo
     echo
+}
 
-SETP=7
+function ft_step_jues(){
+SETP="9"
     echo "######## $STEP. JEUS Check ########"
     function JEUS_MON(){
         jeusadmin -u $JEUS_ID -p $JEUS_PSW << EOF
@@ -221,7 +218,10 @@ EOF
     JEUS_MON 
     echo
     echo
-STEP=8
+}
+
+function ft_step_log(){
+STEP="10"
     echo "######## $STEP. Log check ########"
     cd $SYSMASTER_HOME
 
@@ -292,3 +292,27 @@ STEP=8
     done
     echo
     echo
+}
+##
+
+## Program function running
+function main(){
+    ft_step_env
+    ft_step_version
+    ft_step_system
+    ft_step_uptime
+    ft_step_portscan
+    ft_step_space
+    ft_step_cpu
+    ft_step_smdb
+    ft_step_jues
+    ft_step_log
+}
+
+printf "#%-50s#\n" "##################################################"
+printf "#%-50s#\n" " SYSMASTER7 Maintenance Result"
+printf "#%-50s#\n" " `date +%Y-%m-%d" "%T`"
+printf "#%-50s#\n" "##################################################"
+echo
+main 2>/dev/null
+##
