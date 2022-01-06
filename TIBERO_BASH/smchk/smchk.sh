@@ -213,7 +213,7 @@ EOF
     echo
     echo
 }
-echo
+
 function ft_step_jues(){
 SETP="9"
     echo "######## $STEP. JEUS Check ########"
