@@ -7,13 +7,29 @@ import java.util.*;
 import java.text.*;
 
 /*
-DDL : create table devpg_ex.board_content(num INT, title VARCHAR, content VARCHAR, CREATE_DATE DATE, UPDATE_DATE DATE, view_cnt INT);
+DDL :
+create table board_content(
+num int not null, 
+title VARCHAR(30) not null,
+content VARCHAR(60) not null,  
+create_date VARCHAR(30) not null,
+update_date VARCHAR(30) not null, 
+view_cnt INT not null 	
+)tablespace JUNSU;
+
+
+DROP TABLE board_content;
+
+CREATE SEQUENCE seq_num
+ START WITH  1;
+
 */
 
-public class postgres_instert{
+public class tibero_insert{
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
-    Class.forName("org.postgresql.Driver");
-    Connection connection = DriverManager.getConnection("jdbc:postgresql://183.107.10.236:5432/devpg", "devpg_ex", "DEVPG123!@#");
+    Class.forName("com.tmax.tibero.jdbc.TbDriver");
+
+    Connection connection = DriverManager.getConnection("jdbc:tibero:thin:@183.107.10.236:8629:dodo", "sys", "tibero");
     PreparedStatement pstmt = null;
 
     String title="";
@@ -23,10 +39,10 @@ public class postgres_instert{
     System.out.println(1);
     try {
         Random ran = new Random();
-        String sql = "INSERT INTO board_content(title,content,create_date,update_date,view_cnt) VALUES(?,?,?,?,?)";
+        String sql = "INSERT INTO board_content(num,title,content,create_date,update_date,view_cnt) VALUES(seq_num.nextval,?,?,?,?,?)";
         pstmt = connection.prepareStatement(sql);
         
-        for(int ii=1; ii<50000000;ii++) {
+        for(int ii=1; ii<=3021033;ii++) {
             title="";
             content="";
             /* title */
