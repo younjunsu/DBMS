@@ -56,7 +56,7 @@ public class cubrid_insert{
             String update_date1 = update_date.toString();
             System.out.println(6);
  
-     
+
             /* view_cnt */
             int num1 = (int) 48 + (int) (ran.nextInt(5000));
             view_cnt = view_cnt + (int) num1;
