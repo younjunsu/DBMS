@@ -1,4 +1,0 @@
-show j_cnt;
-
--- j_cnt reset
-alter system clear stat;

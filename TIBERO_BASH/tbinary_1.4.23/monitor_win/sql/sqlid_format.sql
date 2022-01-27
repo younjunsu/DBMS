@@ -1,1 +1,0 @@
-column sql_id format 99999999999999999999 
