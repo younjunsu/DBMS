@@ -29,7 +29,7 @@ public class tibero_insert{
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
     Class.forName("com.tmax.tibero.jdbc.TbDriver");
 
-    Connection connection = DriverManager.getConnection("jdbc:tibero:thin:@183.107.10.236:8629:dodo", "sys", "tibero");
+    Connection connection = DriverManager.getConnection("jdbc:tibero:thin:@localhost:8629:tibero", "junsu", "tibero");
     PreparedStatement pstmt = null;
 
     String title="";
@@ -42,7 +42,7 @@ public class tibero_insert{
         String sql = "INSERT INTO board_content(num,title,content,create_date,update_date,view_cnt) VALUES(seq_num.nextval,?,?,?,?,?)";
         pstmt = connection.prepareStatement(sql);
         
-        for(int ii=1; ii<=3021033;ii++) {
+        for(int ii=1; ii<=10000000;ii++) {
             title="";
             content="";
             /* title */
